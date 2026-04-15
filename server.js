@@ -88,21 +88,31 @@ app.post('/auth/login', apiLimiter, async (req, res) => {
   const { username, password } = req.body;
   const adminUser = process.env.ADMIN_USER || 'admin';
   const adminHash = process.env.ADMIN_PASSWORD_HASH;
+  const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+
+  logger.info('Login attempt', {
+    usernameReceived: username,
+    adminUser,
+    usernameMatch: username === adminUser,
+    hasHash: !!adminHash,
+    hasPlainPass: !!process.env.ADMIN_PASSWORD
+  });
 
   if (!adminHash) {
-    // Fallback for first-run: plain password comparison via ADMIN_PASSWORD env var
-    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
     if (username !== adminUser || password !== adminPass) {
+      logger.warn('Login failed — plain password mismatch');
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
   } else {
     if (username !== adminUser || !(await bcrypt.compare(password, adminHash))) {
+      logger.warn('Login failed — bcrypt mismatch');
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
   }
 
   req.session.admin = true;
   req.session.loginTime = Date.now();
+  logger.info('Login success', { username });
   res.json({ ok: true });
 });
 
