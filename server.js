@@ -34,6 +34,7 @@ const metrics = { requests: 0, errors: 0, startTime: Date.now() };
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.set('trust proxy', 1);
 app.use(responseTimeMiddleware);
 app.use(morgan('combined', {
   skip: () => process.env.NODE_ENV === 'test',
