@@ -3,6 +3,7 @@ import 'express-async-errors';
 import express from 'express';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
+import connectPgSimple from 'connect-pg-simple';
 import path from 'path';
 import morgan from 'morgan';
 import { fileURLToPath } from 'url';
@@ -40,8 +41,14 @@ app.use(morgan('combined', {
 }));
 app.use((req, res, next) => { metrics.requests++; next(); });
 
-// Session for admin auth
+// Session for admin auth — stored in PostgreSQL so sessions survive restarts
+const PgSession = connectPgSimple(session);
 app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    tableName: 'admin_sessions',
+    createTableIfMissing: true
+  }),
   secret: process.env.SESSION_SECRET || 'mt-propman-session-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
