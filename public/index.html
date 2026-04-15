@@ -130,10 +130,15 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
     <div class="nav-item" onclick="showTab('payments', this)"><span class="icon">💳</span> Payments</div>
     <div class="nav-section">Operations</div>
     <div class="nav-item" id="nav-maintenance" onclick="showTab('maintenance', this)"><span class="icon">🔧</span> Maintenance</div>
+   <div class="nav-item" onclick="showTab('reports', this)"><span class="icon">📊</span> Reports</div>
+
     <div class="nav-section">System</div>
     <div class="nav-item" onclick="showTab('settings', this)"><span class="icon">⚙️</span> Settings</div>
   </nav>
-  <div class="sidebar-footer">MT-PropMan v2.0 &copy; 2026</div>
+  <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%;color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)">⏻ Logout</button>
+    <span>MT-PropMan v2.1 &copy; 2026</span>
+  </div>
 </div>
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -231,6 +236,83 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
         <div class="table-wrap"><table><thead><tr><th>Title</th><th>Property / Unit</th><th>Priority</th><th>Reported</th><th>Status</th><th>Resolved</th><th>Actions</th></tr></thead><tbody id="maintenance-body"></tbody></table></div>
       </div>
     </div>
+
+    <div class="section" id="tab-reports">
+  <div class="card">
+    <div class="card-header">
+      <h3>📊 Reports & Analytics</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('tenants')">⬇ Tenants CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('properties')">⬇ Properties CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('leases')">⬇ Leases CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('payments')">⬇ Payments CSV</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding:20px">
+
+      <!-- KPI Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px" id="report-kpis"></div>
+
+      <!-- Revenue Chart -->
+      <h4 style="margin:0 0 10px;color:var(--primary)">Monthly Revenue (Last 12 Months)</h4>
+      <div id="report-revenue" style="margin-bottom:24px"></div>
+
+      <!-- P&L -->
+      <h4 style="margin:0 0 10px;color:var(--primary)">Invoiced vs Collected</h4>
+      <div id="report-pnl" style="margin-bottom:24px"></div>
+
+      <!-- Lease Expiry -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <h4 style="margin:0;color:var(--primary)">Lease Expiry Alerts</h4>
+        <select id="expiry-days" onchange="loadLeaseExpiry()" style="padding:4px 8px;border-radius:6px;border:1px solid #ddd">
+          <option value="30">Next 30 days</option>
+          <option value="60" selected>Next 60 days</option>
+          <option value="90">Next 90 days</option>
+        </select>
+      </div>
+      <div id="report-expiry" style="margin-bottom:24px"></div>
+
+      <!-- Maintenance Analytics -->
+      <h4 style="margin:0 0 10px;color:var(--primary)">Maintenance Summary</h4>
+      <div id="report-maintenance" style="margin-bottom:24px"></div>
+
+      <!-- Property Utilization -->
+      <h4 style="margin:0 0 10px;color:var(--primary)">Property Utilization & Revenue</h4>
+      <div id="report-utilization"></div>
+
+    </div>
+  </div>
+
+  <!-- Late Fees Card -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-header">
+      <h3>⚠️ Late Fees</h3>
+      <button class="btn btn-outline btn-sm" onclick="previewLateFees()">Preview</button>
+    </div>
+    <div class="card-body" style="padding:16px">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label>Rate: <input id="lf-rate" type="number" value="5" style="width:60px;padding:4px"> %</label>
+        <label>Grace period: <input id="lf-grace" type="number" value="7" style="width:60px;padding:4px"> days</label>
+        <button class="btn btn-danger btn-sm" onclick="applyLateFees()">Apply to All Overdue</button>
+      </div>
+      <div id="late-fees-preview"></div>
+    </div>
+  </div>
+
+  <!-- Payment Reminders Card -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-header"><h3>📧 Payment Reminders</h3></div>
+    <div class="card-body" style="padding:16px">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <label>Send reminders for invoices overdue by at least
+          <input id="reminder-days" type="number" value="0" style="width:60px;padding:4px"> days
+        </label>
+        <button class="btn btn-primary btn-sm" onclick="sendReminders()">📧 Send Reminders</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
     <!-- SETTINGS -->
     <div id="tab-settings" class="section">
@@ -395,7 +477,7 @@ function fmtDate(d) { if(!d) return '-'; return new Date(d+'T00:00:00').toLocale
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('show'); }
 
-const tabTitles={dashboard:'Dashboard',properties:'Properties',tenants:'Tenants',leases:'Leases',invoices:'Invoices',payments:'Payments',maintenance:'Maintenance',settings:'Settings'};
+const tabTitles={dashboard:'Dashboard',properties:'Properties',tenants:'Tenants',leases:'Leases',invoices:'Invoices',payments:'Payments',maintenance:'Maintenance',reports:'Reports',settings:'Settings'};
 function showTab(name,el) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -403,7 +485,7 @@ function showTab(name,el) {
   if(el) el.classList.add('active');
   document.getElementById('page-title').textContent=tabTitles[name]||name;
   closeSidebar();
-  const loaders={dashboard:loadDashboard,properties:loadProperties,tenants:loadTenants,leases:loadLeases,invoices:loadInvoices,payments:loadPayments,maintenance:loadMaintenance,settings:loadSettings};
+  const loaders={dashboard:loadDashboard,properties:loadProperties,tenants:loadTenants,leases:loadLeases,invoices:loadInvoices,payments:loadPayments,maintenance:loadMaintenance,reports:loadReports,settings:loadSettings};
   if(loaders[name]) loaders[name]();
 }
 
@@ -967,7 +1049,140 @@ async function recordAddPayment() {
   toast(`Payment recorded! Receipt: ${data.receipt_no}`);
   loadPayments();
 }
+
+// ── Reports ───────────────────────────────────────────────────────────────────
+async function loadReports() {
+  const [rev, occ, pnl, maint, util] = await Promise.all([
+    fetch('/api/reports/revenue').then(r => r.json()),
+    fetch('/api/reports/occupancy').then(r => r.json()),
+    fetch('/api/reports/pnl').then(r => r.json()),
+    fetch('/api/reports/maintenance').then(r => r.json()),
+    fetch('/api/reports/property-utilization').then(r => r.json()),
+  ]);
+
+  // KPIs
+  const propRate = occ.properties.total > 0 ? Math.round(occ.properties.occupied / occ.properties.total * 100) : 0;
+  const unitRate = occ.units.total > 0 ? Math.round(occ.units.occupied / occ.units.total * 100) : 0;
+  const totalRev = rev.reduce((s, r) => s + Number(r.total), 0);
+  document.getElementById('report-kpis').innerHTML = `
+    <div class="stat-card c1"><div class="label">Property Occupancy</div><div class="value">${propRate}%</div><div class="sub">${occ.properties.occupied}/${occ.properties.total} occupied</div></div>
+    <div class="stat-card c2"><div class="label">Unit Occupancy</div><div class="value">${unitRate}%</div><div class="sub">${occ.units.occupied}/${occ.units.total} occupied</div></div>
+    <div class="stat-card c3"><div class="label">12-Month Revenue</div><div class="value">K${totalRev.toLocaleString()}</div><div class="sub">${rev.length} months tracked</div></div>
+    <div class="stat-card c4"><div class="label">Open Maintenance</div><div class="value">${maint.summary.open||0}</div><div class="sub">${maint.summary.high_open||0} high priority</div></div>`;
+
+  // Revenue table
+  document.getElementById('report-revenue').innerHTML = rev.length ? `
+    <table><thead><tr><th>Month</th><th>Payments</th><th>Revenue (K)</th></tr></thead><tbody>
+    ${rev.map(r => `<tr><td>${r.month}</td><td>${r.payment_count}</td><td>K${Number(r.total).toLocaleString()}</td></tr>`).join('')}
+    </tbody></table>` : '<p class="empty">No payment data yet.</p>';
+
+  // P&L table
+  document.getElementById('report-pnl').innerHTML = pnl.length ? `
+    <table><thead><tr><th>Month</th><th>Invoiced (K)</th><th>Collected (K)</th><th>Gap (K)</th></tr></thead><tbody>
+    ${pnl.map(r => {
+      const gap = Number(r.invoiced) - Number(r.collected);
+      return `<tr><td>${r.month}</td><td>K${Number(r.invoiced).toLocaleString()}</td><td>K${Number(r.collected).toLocaleString()}</td><td style="color:${gap>0?'#b22a2a':'#1a7a4a'}">K${gap.toLocaleString()}</td></tr>`;
+    }).join('')}</tbody></table>` : '<p class="empty">No data yet.</p>';
+
+  // Maintenance
+  const ms = maint.summary;
+  document.getElementById('report-maintenance').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="badge badge-monthly">Total: ${ms.total||0}</span>
+      <span class="badge badge-vacant">Open: ${ms.open||0}</span>
+      <span class="badge badge-occupied">Resolved: ${ms.resolved||0}</span>
+      <span class="badge" style="background:#fee2e2;color:#b22a2a">High Priority Open: ${ms.high_open||0}</span>
+      <span class="badge badge-monthly">Avg Resolution: ${ms.avg_resolution_days||'-'} days</span>
+    </div>
+    <table><thead><tr><th>Property</th><th>Total</th><th>Open</th></tr></thead><tbody>
+    ${maint.byProperty.map(r => `<tr><td>${r.property_name}</td><td>${r.total}</td><td>${r.open}</td></tr>`).join('')}
+    </tbody></table>`;
+
+  // Utilization
+  document.getElementById('report-utilization').innerHTML = `
+    <table><thead><tr><th>Property</th><th>Type</th><th>Status</th><th>Active Leases</th><th>This Month (K)</th><th>Total Revenue (K)</th></tr></thead><tbody>
+    ${util.map(r => `<tr><td><strong>${r.name}</strong></td><td>${r.type}</td><td>${badge(r.status)}</td><td>${r.active_leases}</td><td>K${Number(r.this_month_revenue).toLocaleString()}</td><td>K${Number(r.total_revenue).toLocaleString()}</td></tr>`).join('')}
+    </tbody></table>`;
+
+  loadLeaseExpiry();
+}
+
+async function loadLeaseExpiry() {
+  const days = document.getElementById('expiry-days')?.value || 60;
+  const rows = await fetch(`/api/reports/lease-expiry?days=${days}`).then(r => r.json());
+  document.getElementById('report-expiry').innerHTML = rows.length ? `
+    <table><thead><tr><th>Ref</th><th>Tenant</th><th>Property</th><th>End Date</th><th>Days Left</th><th>Rent (K)</th></tr></thead><tbody>
+    ${rows.map(r => `<tr>
+      <td><strong>${r.ref_no}</strong></td><td>${r.tenant_name}</td>
+      <td>${r.property_name}${r.unit_name?' / '+r.unit_name:''}</td>
+      <td>${fmtDate(r.end_date)}</td>
+      <td style="color:${r.days_remaining<=14?'#b22a2a':'#c8922a'};font-weight:700">${r.days_remaining} days</td>
+      <td>K${Number(r.rent_amount).toLocaleString()}</td>
+    </tr>`).join('')}
+    </tbody></table>` : '<p style="color:#1a7a4a;padding:8px 0">✅ No leases expiring in this period.</p>';
+}
+
+async function previewLateFees() {
+  const rate = document.getElementById('lf-rate').value;
+  const grace = document.getElementById('lf-grace').value;
+  const data = await fetch(`/api/bulk/late-fees/preview?rate=${rate}&grace=${grace}`).then(r => r.json());
+  document.getElementById('late-fees-preview').innerHTML = data.preview.length ? `
+    <table><thead><tr><th>Invoice</th><th>Tenant</th><th>Property</th><th>Days Overdue</th><th>Current (K)</th><th>Late Fee (K)</th><th>New Total (K)</th></tr></thead><tbody>
+    ${data.preview.map(r => `<tr>
+      <td>${r.invoice_no}</td><td>${r.tenant_name}</td>
+      <td>${r.property_name}${r.unit_name?' / '+r.unit_name:''}</td>
+      <td style="color:#b22a2a">${r.days_overdue}</td>
+      <td>K${Number(r.amount_due).toLocaleString()}</td>
+      <td style="color:#b22a2a">K${r.late_fee}</td>
+      <td style="font-weight:700">K${r.new_total}</td>
+    </tr>`).join('')}
+    </tbody></table>` : '<p style="color:#1a7a4a">✅ No overdue invoices beyond grace period.</p>';
+}
+
+async function applyLateFees() {
+  if (!confirm('Apply late fees to all overdue invoices? This will update their amounts.')) return;
+  const rate = document.getElementById('lf-rate').value;
+  const grace = document.getElementById('lf-grace').value;
+  const data = await fetch('/api/bulk/late-fees/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rate: Number(rate), grace: Number(grace) })
+  }).then(r => r.json());
+  toast(`Late fees applied to ${data.applied} invoice(s) at ${data.rate}%.`);
+  previewLateFees();
+}
+
+async function sendReminders() {
+  const days = document.getElementById('reminder-days').value;
+  if (!confirm(`Send payment reminders for all invoices overdue by ${days}+ days?`)) return;
+  const data = await fetch('/api/bulk/send-reminders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ days_overdue: Number(days) })
+  }).then(r => r.json());
+  toast(`📧 Sent ${data.sent} reminder(s).`);
+}
+
+function exportCSV(type) {
+  window.open(`/api/bulk/export/${type}`, '_blank');
+}
+
+async function logout() {
+  await fetch('/auth/logout', { method: 'POST' });
+  window.location.href = '/login.html';
+}
+
+// Redirect to login if session expires
+window.addEventListener('load', async () => {
+  const r = await fetch('/auth/status');
+  const d = await r.json();
+  if (!d.loggedIn) window.location.href = '/login.html';
+});
+
 </script>
+
+
+
 <!-- EDIT LEASE MODAL -->
 <div class="modal-overlay" id="modal-edit-lease">
   <div class="modal">

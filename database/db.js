@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS maintenance (
   id SERIAL PRIMARY KEY,
   property_id INTEGER REFERENCES properties(id) ON DELETE SET NULL,
   unit_id INTEGER REFERENCES units(id) ON DELETE SET NULL,
+  tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
   description TEXT,
   priority TEXT DEFAULT 'medium',
@@ -111,6 +112,26 @@ CREATE TABLE IF NOT EXISTS maintenance (
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tenant_accounts (
+  id SERIAL PRIMARY KEY,
+  tenant_id INTEGER UNIQUE REFERENCES tenants(id) ON DELETE CASCADE,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT,
+  activated BOOLEAN DEFAULT FALSE,
+  activation_token TEXT,
+  reset_token TEXT,
+  reset_token_expires TIMESTAMP,
+  last_login TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tenant_maintenance_photos (
+  id SERIAL PRIMARY KEY,
+  maintenance_id INTEGER REFERENCES maintenance(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `;
 
@@ -195,17 +216,48 @@ function prepare(text) {
   };
 }
 
+async function checkDbHealth() {
+  const start = Date.now();
+  try {
+    const result = await pool.query('SELECT COUNT(*) as c FROM properties');
+    return {
+      status: 'healthy',
+      connection: 'ok',
+      responseMs: Date.now() - start,
+      poolTotal: pool.totalCount,
+      poolIdle: pool.idleCount,
+      poolWaiting: pool.waitingCount,
+      recordCount: Number(result.rows[0].c)
+    };
+  } catch (err) {
+    return {
+      status: 'unhealthy',
+      connection: 'failed',
+      responseMs: Date.now() - start,
+      error: err.message
+    };
+  }
+}
+
 async function generateRef(prefix) {
   const year = new Date().getFullYear();
-  const tableMap = { 'MT-LA': 'leases', 'MT-INV': 'invoices', 'MT-REC': 'payments' };
-  const colMap = { 'MT-LA': 'ref_no', 'MT-INV': 'invoice_no', 'MT-REC': 'receipt_no' };
-  const table = tableMap[prefix];
-  const col = colMap[prefix];
-  if (!table || !col) throw new Error(`Invalid prefix: ${prefix}`);
+  // Whitelist map — table/col never come from user input
+  const allowed = {
+    'MT-LA':  { table: 'leases',   col: 'ref_no'     },
+    'MT-INV': { table: 'invoices', col: 'invoice_no'  },
+    'MT-REC': { table: 'payments', col: 'receipt_no'  }
+  };
+  const entry = allowed[prefix];
+  if (!entry) throw new Error(`Invalid prefix: ${prefix}`);
+  const { table, col } = entry;
   const pattern = `${prefix}-${year}-%`;
-  const result = await pool.query(`SELECT ${col} FROM ${table} WHERE ${col} LIKE $1 ORDER BY id DESC LIMIT 1`, [pattern]);
+  // table and col are from a closed whitelist, not user input
+  const result = await pool.query(
+    `SELECT ${col} FROM ${table} WHERE ${col} LIKE $1 ORDER BY id DESC LIMIT 1`,
+    [pattern]
+  );
   const match = result.rows[0];
-  if (match && match[col] && match[col].startsWith(`${prefix}-${year}-`)) {
+  if (match?.[col]?.startsWith(`${prefix}-${year}-`)) {
     const last = parseInt(match[col].split('-').pop(), 10);
     return `${prefix}-${year}-${String(last + 1).padStart(3, '0')}`;
   }
@@ -219,5 +271,5 @@ async function getSetting(key) {
 
 const db = { prepare };
 
-export { db, generateRef, getSetting };
+export { db, generateRef, getSetting, checkDbHealth };
 

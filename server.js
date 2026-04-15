@@ -1,61 +1,139 @@
 import 'dotenv/config';
 import 'express-async-errors';
 import express from 'express';
+import session from 'express-session';
+import bcrypt from 'bcrypt';
 import path from 'path';
+import morgan from 'morgan';
 import { fileURLToPath } from 'url';
-import { db } from './database/db.js';
+import { db, checkDbHealth } from './database/db.js';
+import logger from './middleware/logger.js';
+import { responseTimeMiddleware, getResponseTimeStats } from './middleware/responseTime.js';
+import { apiLimiter, emailLimiter } from './middleware/rateLimiter.js';
+import { requireAdmin } from './middleware/adminAuth.js';
 import propertiesRouter from './routes/properties.js';
 import tenantsRouter from './routes/tenants.js';
 import leasesRouter from './routes/leases.js';
 import invoicesRouter from './routes/invoices.js';
 import maintenanceRouter from './routes/maintenance.js';
 import settingsRouter from './routes/settings.js';
+import reportsRouter from './routes/reports.js';
+import bulkRouter from './routes/bulk.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 const publicDir = path.resolve(__dirname, 'public');
-const uploadsDir = path.resolve(__dirname, 'public/uploads');
 
-const authenticate = (req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-  if (process.env.API_KEY && apiKey !== process.env.API_KEY) {
-    return res.status(401).json({ error: 'Unauthorized.' });
-  }
-  if (!process.env.API_KEY) {
-    console.warn('WARNING: API_KEY is not set; /api routes are unprotected.');
-  }
-  next();
-};
+// Simple request counter for health endpoint
+const metrics = { requests: 0, errors: 0, startTime: Date.now() };
+
+// ── Core Middleware ───────────────────────────────────────────────────────────
 
 app.use(express.json());
-app.use(express.static(publicDir));
-app.use('/uploads', express.static(uploadsDir));
+app.use(express.urlencoded({ extended: false }));
+app.use(responseTimeMiddleware);
+app.use(morgan('combined', {
+  skip: () => process.env.NODE_ENV === 'test',
+  stream: { write: msg => logger.http(msg.trim()) }
+}));
+app.use((req, res, next) => { metrics.requests++; next(); });
 
-app.use((req, res, next) => {
-  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-    const origin = req.headers.origin || req.headers.referer || '';
-    if (origin && !origin.startsWith(`http://localhost:${port}`)) {
-      return res.status(403).json({ error: 'Forbidden: invalid request origin.' });
+// Session for admin auth
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'mt-propman-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 8 * 60 * 60 * 1000 // 8 hours
+  }
+}));
+
+// ── Health Check (public — used by Render uptime monitoring) ──────────────────
+
+app.get('/health', async (req, res) => {
+  const dbHealth = await checkDbHealth();
+  const mem = process.memoryUsage();
+  const status = dbHealth.status === 'healthy' ? 'healthy' : 'unhealthy';
+  res.status(status === 'healthy' ? 200 : 503).json({
+    status,
+    timestamp: new Date().toISOString(),
+    uptime: Math.round(process.uptime()),
+    version: '2.1.0',
+    environment: process.env.NODE_ENV || 'development',
+    database: dbHealth,
+    memory: {
+      heapUsed: Math.round(mem.heapUsed / 1024 / 1024) + 'MB',
+      rss: Math.round(mem.rss / 1024 / 1024) + 'MB'
+    },
+    requests: metrics.requests,
+    errors: metrics.errors,
+    responseTimes: getResponseTimeStats()
+  });
+});
+
+// ── Admin Auth Routes ─────────────────────────────────────────────────────────
+
+app.post('/auth/login', apiLimiter, async (req, res) => {
+  const { username, password } = req.body;
+  const adminUser = process.env.ADMIN_USER || 'admin';
+  const adminHash = process.env.ADMIN_PASSWORD_HASH;
+
+  if (!adminHash) {
+    // Fallback for first-run: plain password comparison via ADMIN_PASSWORD env var
+    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+    if (username !== adminUser || password !== adminPass) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+  } else {
+    if (username !== adminUser || !(await bcrypt.compare(password, adminHash))) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
     }
   }
-  next();
+
+  req.session.admin = true;
+  req.session.loginTime = Date.now();
+  res.json({ ok: true });
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.post('/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ ok: true });
 });
 
-app.use('/api', authenticate);
+app.get('/auth/status', (req, res) => {
+  res.json({ loggedIn: !!req.session?.admin });
+});
+
+// ── Static Files ──────────────────────────────────────────────────────────────
+
+// login.html is public
+app.use(express.static(publicDir, { index: false }));
+app.use('/uploads', express.static(path.resolve(__dirname, 'public/uploads')));
+
+// Serve login page
+app.get('/login.html', (req, res) => res.sendFile(path.resolve(publicDir, 'login.html')));
+
+// Main app — requires login
+app.get('/', requireAdmin, (req, res) => res.sendFile(path.resolve(publicDir, 'index.html')));
+
+// ── API Routes (all require admin session) ────────────────────────────────────
+
+app.use('/api', requireAdmin, apiLimiter);
 app.use('/api/properties', propertiesRouter);
 app.use('/api/tenants', tenantsRouter);
 app.use('/api/leases', leasesRouter);
 app.use('/api/invoices', invoicesRouter);
+app.use('/api/invoices/:id/send-email', emailLimiter);
 app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/reports', reportsRouter);
+app.use('/api/bulk', bulkRouter);
 
-app.get('/api/payments-list', async (req, res) => {
+app.get('/api/payments-list', requireAdmin, apiLimiter, async (req, res) => {
   const payments = await db.prepare(`
     SELECT pay.*, i.invoice_no, t.name as tenant_name, p.name as property_name
     FROM payments pay
@@ -68,7 +146,7 @@ app.get('/api/payments-list', async (req, res) => {
   res.json(payments);
 });
 
-app.get('/api/dashboard', async (req, res) => {
+app.get('/api/dashboard', requireAdmin, apiLimiter, async (req, res) => {
   const totalProperties = Number((await db.prepare('SELECT COUNT(*) as c FROM properties').get()).c || 0);
   const occupiedProperties = Number((await db.prepare("SELECT COUNT(*) as c FROM properties WHERE status = 'occupied'").get()).c || 0);
   const vacantProperties = Number((await db.prepare("SELECT COUNT(*) as c FROM properties WHERE status = 'vacant'").get()).c || 0);
@@ -112,17 +190,35 @@ app.get('/api/dashboard', async (req, res) => {
   });
 });
 
-app.get('/', (req, res) => {
-  const indexPath = path.resolve(publicDir, 'index.html');
-  res.sendFile(indexPath);
-});
+// ── Error Handling ────────────────────────────────────────────────────────────
 
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal Server Error' });
+  metrics.errors++;
+  logger.error('Unhandled error', { message: err.message, stack: err.stack, path: req.path, method: req.method });
+  const isDev = process.env.NODE_ENV !== 'production';
+  res.status(err.status || 500).json({
+    error: isDev ? err.message : 'Internal server error',
+    timestamp: new Date().toISOString()
+  });
 });
 
+app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path }));
+
+// ── Graceful Shutdown ─────────────────────────────────────────────────────────
+
+process.on('SIGTERM', () => { logger.info('SIGTERM — shutting down'); process.exit(0); });
+process.on('SIGINT',  () => { logger.info('SIGINT — shutting down');  process.exit(0); });
+process.on('uncaughtException',  (err)    => { logger.error('Uncaught exception',        { message: err.message, stack: err.stack }); process.exit(1); });
+process.on('unhandledRejection', (reason) => { logger.error('Unhandled rejection',       { reason: String(reason) }); });
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+
 app.listen(port, () => {
-  console.log(`\n✅ MT-PropMan is running!`);
-  console.log(`   Open your browser at: http://localhost:${port}\n`);
+  logger.info('MT-PropMan started', {
+    port,
+    env: process.env.NODE_ENV || 'development',
+    db: process.env.DATABASE_URL ? 'configured' : 'NOT CONFIGURED',
+    adminUser: process.env.ADMIN_USER || 'admin',
+    authMode: process.env.ADMIN_PASSWORD_HASH ? 'bcrypt' : 'plaintext (set ADMIN_PASSWORD_HASH in production)'
+  });
 });
