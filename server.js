@@ -48,7 +48,8 @@ app.use(session({
   store: new PgSession({
     conString: process.env.DATABASE_URL,
     tableName: 'admin_sessions',
-    createTableIfMissing: true
+    createTableIfMissing: true,
+    ssl: { rejectUnauthorized: false }
   }),
   secret: process.env.SESSION_SECRET || 'mt-propman-session-secret-change-in-production',
   resave: false,
