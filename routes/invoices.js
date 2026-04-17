@@ -34,26 +34,52 @@ router.post('/generate', csrfProtect, async (req, res) => {
 });
 
 router.post('/generate-all', csrfProtect, async (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
   const activeLeases = await db.prepare(`SELECT * FROM leases WHERE status = 'active'`).all();
   let created = 0, skipped = 0;
+
   for (const lease of activeLeases) {
-    const existing = await db.prepare(`SELECT id FROM invoices WHERE lease_id = $1 AND status = 'unpaid'`).get([lease.id]);
-    if (existing) { skipped++; continue; }
-    const end = lease.payment_frequency === 'fortnightly'
-      ? new Date(Date.now() + 13 * 86400000).toISOString().split('T')[0]
-      : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
+    // Skip if there is already an unpaid invoice for this lease
+    const unpaid = await db.prepare(`SELECT id FROM invoices WHERE lease_id = $1 AND status = 'unpaid'`).get([lease.id]);
+    if (unpaid) { skipped++; continue; }
+
+    // Find the last invoice generated for this lease
+    const lastInv = await db.prepare(
+      `SELECT period_end FROM invoices WHERE lease_id = $1 ORDER BY id DESC LIMIT 1`
+    ).get([lease.id]);
+
+    let periodStart, periodEnd;
+
+    if (!lastInv) {
+      // No invoices yet — use lease start date
+      periodStart = new Date(lease.start_date);
+    } else {
+      // Next period starts the day after the last period ended
+      const lastEnd = new Date(lastInv.period_end);
+      periodStart = new Date(lastEnd);
+      periodStart.setDate(periodStart.getDate() + 1);
+    }
+
+    // Calculate period end based on frequency
+    periodEnd = new Date(periodStart);
+    if (lease.payment_frequency === 'fortnightly') {
+      periodEnd.setDate(periodEnd.getDate() + 13); // 14 days inclusive
+    } else {
+      // Monthly: same day next month minus 1 day
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+      periodEnd.setDate(periodEnd.getDate() - 1);
+    }
+
+    const fmt = d => d.toISOString().split('T')[0];
     const invoice_no = await generateRef('MT-INV');
-    await db.prepare(`INSERT INTO invoices (lease_id, invoice_no, period_start, period_end, due_date, amount_due, status) VALUES ($1, $2, $3, $4, $5, $6, 'unpaid')`).run([
-      lease.id,
-      invoice_no,
-      today,
-      end,
-      end,
-      lease.rent_amount,
-    ]);
+
+    await db.prepare(
+      `INSERT INTO invoices (lease_id, invoice_no, period_start, period_end, due_date, amount_due, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'unpaid')`
+    ).run([lease.id, invoice_no, fmt(periodStart), fmt(periodEnd), fmt(periodEnd), lease.rent_amount]);
+
     created++;
   }
+
   res.json({ created, skipped });
 });
 
