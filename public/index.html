@@ -731,7 +731,7 @@ async function generateAllInvoices() {
  loadInvoices();
 }
 function openPayModal(invoiceId,amount){document.getElementById('pay-invoice-id').value=invoiceId;document.getElementById('pay-amount').value=amount;document.getElementById('pay-date').value=today;openModal('modal-pay-invoice');}
-async function recordPayment(){const id=document.getElementById('pay-invoice-id').value;const res=await fetch(`/api/invoices/pay/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_paid:document.getElementById('pay-amount').value,payment_date:document.getElementById('pay-date').value,payment_method:document.getElementById('pay-method').value,notes:document.getElementById('pay-notes').value})});const data=await res.json();closeModal('modal-pay-invoice');toast(`Payment recorded! Receipt: ${data.receipt_no}`);loadInvoices();if(confirm('Payment recorded! Download PDF receipt now?')){window.open(`/api/invoices/${id}/receipt-pdf`,'_blank');}}
+async function recordPayment(){const id=document.getElementById('pay-invoice-id').value;const res=await fetch(`/api/invoices/pay/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_paid:document.getElementById('pay-amount').value,payment_date:document.getElementById('pay-date').value,payment_method:document.getElementById('pay-method').value,notes:document.getElementById('pay-notes').value})});const data=await res.json();closeModal('modal-pay-invoice');toast(`Payment recorded! Receipt: ${data.receipt_no}`);loadInvoices();window.open(`/api/invoices/${id}/receipt-pdf`,'_blank');}
 
 // 
 // INVOICE HTML 100% PRINT-SAFE (no bg colors)
@@ -1198,21 +1198,32 @@ async function loadBell() {
  list.innerHTML = '<p style="color:#aaa;font-size:13px;padding:8px">No notifications yet.</p>';
  return;
  }
- list.innerHTML = data.notifications.map(n => `
- <div style="padding:10px 8px;border-bottom:1px solid #f0f3f8;opacity:${n.status==='dismissed'?0.4:1}">
- <div style="display:flex;justify-content:space-between;align-items:center">
- <strong style="font-size:13px">${n.tenant_name}</strong>
- <span style="font-size:11px;color:#888">${new Date(n.created_at).toLocaleDateString()}</span>
- </div>
- <div style="font-size:13px;color:#0d2137;margin:2px 0">K${Number(n.amount).toLocaleString()} &mdash; ${n.payment_date}</div>
-      ${n.invoice_no ? `<div style="font-size:11px;color:#1a4a8a;font-weight:700">Invoice: ${n.invoice_no}</div>` : ''}
- ${n.bank_reference ? `<div style="font-size:11px;color:#888">Ref: ${n.bank_reference}</div>` : ''}
- ${n.notes ? `<div style="font-size:11px;color:#888">${n.notes}</div>` : ''}
- ${n.status==='pending' ? `<div style="margin-top:6px;display:flex;gap:6px">
- <button onclick="openPayModal(null,${n.amount})" class="btn btn-success btn-sm">Record Payment</button>
- <button onclick="dismissNotif(${n.id})" class="btn btn-outline btn-sm">Dismiss</button>
- </div>` : '<div style="font-size:11px;color:#aaa;margin-top:4px">Dismissed</div>'}
- </div>`).join('');
+ list.innerHTML = data.notifications.map(n => {
+    const isReminder = n.status === 'reminder';
+    const isDismissed = n.status === 'dismissed';
+    const bg = isReminder ? '#fff8e1' : '#fff';
+    const borderColor = isReminder ? '#f0c040' : '#f0f3f8';
+    return '<div style="padding:10px 8px;border-bottom:1px solid ' + borderColor + ';background:' + bg + ';opacity:' + (isDismissed ? 0.4 : 1) + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<strong style="font-size:13px;color:' + (isReminder ? '#a06010' : '#000') + '">' + (isReminder ? 'REMINDER: ' : '') + n.tenant_name + '</strong>' +
+        '<span style="font-size:11px;color:#888">' + new Date(n.created_at).toLocaleDateString() + '</span>' +
+      '</div>' +
+      (isReminder
+        ? '<div style="font-size:12px;color:#a06010;margin:4px 0">' + n.notes + '</div>'
+        : '<div style="font-size:13px;color:#0d2137;margin:2px 0">K' + Number(n.amount).toLocaleString() + ' &mdash; ' + n.payment_date + '</div>' +
+          (n.invoice_no ? '<div style="font-size:11px;color:#1a4a8a;font-weight:700">Invoice: ' + n.invoice_no + '</div>' : '') +
+          (n.bank_reference ? '<div style="font-size:11px;color:#888">Ref: ' + n.bank_reference + '</div>' : '') +
+          (n.notes ? '<div style="font-size:11px;color:#888">' + n.notes + '</div>' : '')
+      ) +
+      (!isDismissed
+        ? '<div style="margin-top:6px;display:flex;gap:6px">' +
+            (!isReminder ? '<button onclick="openPayModal(null,' + n.amount + ')" class="btn btn-success btn-sm">Record Payment</button>' : '') +
+            '<button onclick="dismissNotif(' + n.id + ')" class="btn btn-outline btn-sm">Dismiss</button>' +
+          '</div>'
+        : '<div style="font-size:11px;color:#aaa;margin-top:4px">Dismissed</div>'
+      ) +
+    '</div>';
+  }).join('');
 }
 function toggleBell() {
  const panel = document.getElementById('bell-panel');
