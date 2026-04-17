@@ -191,6 +191,7 @@ router.post('/:id/send-email', csrfProtect, async (req, res) => {
 
   const fmtD = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-PG', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
   const unitLabel = inv.unit_name ? ' / ' + inv.unit_name : '';
+  const appUrl = process.env.APP_URL || 'https://mt-propman.onrender.com';
   const subject = `Invoice ${inv.invoice_no} - ${inv.property_name}${unitLabel} - Due ${fmtD(inv.due_date)}`;
 
   // Generate PDF attachment
@@ -206,7 +207,7 @@ router.post('/:id/send-email', csrfProtect, async (req, res) => {
       from: `"${s.company_name || 'Mayemou Trading'}" <${gmailUser}>`,
       to: inv.tenant_email,
       subject,
-      text: `Dear ${inv.tenant_name},\n\nPlease find your invoice ${inv.invoice_no} attached for ${inv.property_name}${unitLabel}.\n\nAmount Due: K${Number(inv.amount_due).toLocaleString()}\nDue Date: ${fmtD(inv.due_date)}\n\nKindly arrange payment by the due date.\n\n${s.company_name || 'Mayemou Trading'}`,
+      text: `Dear ${inv.tenant_name},\n\nPlease find your invoice ${inv.invoice_no} attached for ${inv.property_name}${unitLabel}.\n\nAmount Due: K${Number(inv.amount_due).toLocaleString()}\nDue Date: ${fmtD(inv.due_date)}\n\nKindly arrange payment by the due date via BSP Bank Transfer to:\nAccount Name: ${s.bank_account_name || ''}\nAccount Number: ${s.bank_account_number || ''}\nAccount Type: ${s.bank_account_type || ''}\nBranch: ${s.bank_branch || ''}\n\nOnce payment is made, please notify us at:\n${appUrl}/pay-notify.html\n\n${s.company_name || 'Mayemou Trading'}`,
       attachments: [{
         filename: `${inv.invoice_no}.pdf`,
         content: pdfBuffer,

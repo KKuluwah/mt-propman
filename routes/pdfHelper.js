@@ -152,7 +152,12 @@ export async function generateInvoicePDF(inv, s) {
     y += 86;
     doc.fillColor(muted).fontSize(9).font('Helvetica')
       .text(`Please send payment proof to ${s.email || ''} within 2 business days.`, 50, y, { align: 'center', width: pageW });
-    doc.text(`${s.company_name || 'Mayemou Trading'} | TIN: ${TIN}`, 50, y + 14, { align: 'center', width: pageW });
+    doc.fillColor('#0d2137').fontSize(9).font('Helvetica-Bold')
+      .text('After payment, notify us at:', 50, y + 14, { align: 'center', width: pageW });
+    doc.fillColor('#c8922a').fontSize(9).font('Helvetica')
+      .text(`${process.env.APP_URL || 'https://mt-propman.onrender.com'}/pay-notify.html`, 50, y + 26, { align: 'center', width: pageW });
+    doc.fillColor(muted).fontSize(8).font('Helvetica')
+      .text(`${s.company_name || 'Mayemou Trading'} | TIN: ${TIN}`, 50, y + 40, { align: 'center', width: pageW });
 
     doc.end();
   });

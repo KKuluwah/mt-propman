@@ -39,14 +39,14 @@ router.get('/lookup', async (req, res) => {
 
 // Public -- tenant submits payment notification
 router.post('/pay-notify', async (req, res) => {
-  const { tenant_name, amount, payment_date, bank_reference, notes, invoice_id, invoice_no } = req.body;
-  if (!tenant_name || !amount || !payment_date) {
-    return res.status(400).json({ error: 'Name, amount and date are required.' });
+  const { tenant_name, amount, payment_date, bank_reference, notes, invoice_no } = req.body;
+  if (!tenant_name || !amount || !payment_date || !invoice_no) {
+    return res.status(400).json({ error: 'Name, invoice number, amount and date are required.' });
   }
   await db.prepare(
-    `INSERT INTO notifications (tenant_name, amount, payment_date, bank_reference, notes, invoice_id, invoice_no)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`
-  ).run([tenant_name, amount, payment_date, bank_reference || '', notes || '', invoice_id || null, invoice_no || '']);
+    `INSERT INTO notifications (tenant_name, amount, payment_date, bank_reference, notes, invoice_no)
+     VALUES ($1, $2, $3, $4, $5, $6)`
+  ).run([tenant_name, amount, payment_date, bank_reference || '', notes || '', invoice_no]);
   res.json({ ok: true, message: 'Payment notification sent to your property manager.' });
 });
 
