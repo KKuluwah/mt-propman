@@ -141,6 +141,8 @@ CREATE TABLE IF NOT EXISTS notifications (
   payment_date DATE NOT NULL,
   bank_reference TEXT,
   notes TEXT,
+  invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+  invoice_no TEXT,
   status TEXT DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
