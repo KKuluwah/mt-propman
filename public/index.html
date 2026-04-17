@@ -120,20 +120,20 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  </div>
  <nav>
  <div class="nav-section">Main</div>
- <div class="nav-item active" onclick="showTab('dashboard', this)"> Dashboard</div>
+ <div class="nav-item active" onclick="showTab('dashboard', this)">[D] Dashboard</div>
  <div class="nav-section">Manage</div>
- <div class="nav-item" onclick="showTab('properties', this)"><span class="icon"></span> Properties</div>
- <div class="nav-item" onclick="showTab('tenants', this)"> Tenants</div>
- <div class="nav-item" onclick="showTab('leases', this)"> Leases</div>
+ <div class="nav-item" onclick="showTab('properties', this)"><span class="icon"></span>[P] Properties</div>
+ <div class="nav-item" onclick="showTab('tenants', this)">[T] Tenants</div>
+ <div class="nav-item" onclick="showTab('leases', this)">[L] Leases</div>
  <div class="nav-section">Finance</div>
- <div class="nav-item" onclick="showTab('invoices', this)"> Invoices</div>
- <div class="nav-item" onclick="showTab('payments', this)"> Payments</div>
+ <div class="nav-item" onclick="showTab('invoices', this)">[I] Invoices</div>
+ <div class="nav-item" onclick="showTab('payments', this)">[K] Payments</div>
  <div class="nav-section">Operations</div>
- <div class="nav-item" id="nav-maintenance" onclick="showTab('maintenance', this)"><span class="icon"></span> Maintenance</div>
- <div class="nav-item" onclick="showTab('reports', this)"><span class="icon"></span> Reports</div>
+ <div class="nav-item" id="nav-maintenance" onclick="showTab('maintenance', this)"><span class="icon"></span>[M] Maintenance</div>
+ <div class="nav-item" onclick="showTab('reports', this)"><span class="icon"></span>[R] Reports</div>
 
  <div class="nav-section">System</div>
- <div class="nav-item" onclick="showTab('settings', this)"><span class="icon"></span> Settings</div>
+ <div class="nav-item" onclick="showTab('settings', this)"><span class="icon"></span>[S] Settings</div>
  </nav>
  <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:8px">
  <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%;color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)"> Logout</button>
@@ -161,8 +161,8 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  <div class="stat-card c4"><div class="label">Unpaid Invoices</div><div class="value" id="d-unpaid">0</div><div class="sub" id="d-overdue-sub">0 overdue</div></div>
  </div>
  <div class="grid2">
- <div class="card"><div class="card-header"><h3>Upcoming Payments Due</h3></div><div id="d-upcoming" class="table-wrap"><div class="empty"><div class="empty-icon"></div><p>No pending invoices</p></div></div></div>
- <div class="card"><div class="card-header"><h3>Recent Payments</h3></div><div id="d-recent"><div class="empty"><div class="empty-icon"></div><p>No payments yet</p></div></div></div>
+ <div class="card"><div class="card-header"><h3>Upcoming Payments Due</h3></div><div id="d-upcoming" class="table-wrap"><div class="empty"><p>No pending invoices</p></div></div></div>
+ <div class="card"><div class="card-header"><h3>Recent Payments</h3></div><div id="d-recent"><div class="empty"><p>No payments yet</p></div></div></div>
  </div>
  <div class="card"><div class="card-header"><h3>Property Occupancy</h3></div><div id="d-occ-bars"></div></div>
  </div>
@@ -498,9 +498,20 @@ async function loadDashboard() {
  document.getElementById('d-unpaid').textContent=d.unpaidInvoices;
  document.getElementById('d-overdue-sub').textContent=`${d.overdueInvoices} overdue`;
  const up=document.getElementById('d-upcoming');
- up.innerHTML=d.upcomingDue.length===0?'<div class="empty"><div class="empty-icon"></div><div style="position:relative id=bell-wrap><button onclick=toggleBell() style=background:none;border:none;font-size:22px;cursor:pointer;position:relative;padding:4px title=Payment Notifications><span id=bell-count style=display:none;position:absolute;top:0;right:0;background:#b22a2a;color:#fff;font-size:10px;font-weight:700;border-radius:99px;padding:1px 5px;min-width:16px;text-align:center>0</span></button><div id=bell-panel style=display:none;position:absolute;right:0;top:40px;width:340px;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:300;max-height:420px;overflow-y:auto><div style=padding:12px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center><strong>Payment Notifications</strong><button onclick=dismissAll() style=font-size:11px;background:#f4f7fb;border:1px solid #ddd;border-radius:5px;padding:3px 8px;cursor:pointer>Clear all</button></div><div id=bell-list style=padding:8px></div></div></div><p>All clear!</p></div>':`<table><thead><tr><th>Tenant</th><th>Property</th><th>Amount</th><th>Due</th></tr></thead><tbody>${d.upcomingDue.map(i=>`<tr><td>${i.tenant_name}</td><td>${i.property_name}${i.unit_name?' / '+i.unit_name:''}</td><td>K${Number(i.amount_due).toLocaleString()}</td><td>${fmtDate(i.due_date)}</td></tr>`).join('')}</tbody></table>`;
+ up.innerHTML=d.upcomingDue.length===0?'<div class="empty"><div style="position:relative" id="bell-wrap">
+    <button onclick="toggleBell()" style="background:none;border:none;font-size:18px;cursor:pointer;position:relative;padding:4px" title="Payment Notifications">
+      [&#128276;]<span id="bell-count" style="display:none;position:absolute;top:0;right:0;background:#b22a2a;color:#fff;font-size:10px;font-weight:700;border-radius:99px;padding:1px 5px;min-width:16px;text-align:center">0</span>
+    </button>
+    <div id="bell-panel" style="display:none;position:absolute;right:0;top:44px;width:340px;background:#fff;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:300;max-height:420px;overflow-y:auto">
+      <div style="padding:12px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+        <strong>Payment Notifications</strong>
+        <button onclick="dismissAll()" style="font-size:11px;background:#f4f7fb;border:1px solid #ddd;border-radius:5px;padding:3px 8px;cursor:pointer">Clear all</button>
+      </div>
+      <div id="bell-list" style="padding:8px"></div>
+    </div>
+  </div><p>All clear!</p></div>':`<table><thead><tr><th>Tenant</th><th>Property</th><th>Amount</th><th>Due</th></tr></thead><tbody>${d.upcomingDue.map(i=>`<tr><td>${i.tenant_name}</td><td>${i.property_name}${i.unit_name?' / '+i.unit_name:''}</td><td>K${Number(i.amount_due).toLocaleString()}</td><td>${fmtDate(i.due_date)}</td></tr>`).join('')}</tbody></table>`;
  const rec=document.getElementById('d-recent');
- rec.innerHTML=d.recentPayments.length===0?'<div class="empty"><div class="empty-icon"></div><p>No payments yet</p></div>':`<table><thead><tr><th>Tenant</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>${d.recentPayments.map(p=>`<tr><td>${p.tenant_name}</td><td>K${Number(p.amount_paid).toLocaleString()}</td><td>${p.payment_method}</td><td>${fmtDate(p.payment_date)}</td></tr>`).join('')}</tbody></table>`;
+ rec.innerHTML=d.recentPayments.length===0?'<div class="empty"><p>No payments yet</p></div>':`<table><thead><tr><th>Tenant</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>${d.recentPayments.map(p=>`<tr><td>${p.tenant_name}</td><td>K${Number(p.amount_paid).toLocaleString()}</td><td>${p.payment_method}</td><td>${fmtDate(p.payment_date)}</td></tr>`).join('')}</tbody></table>`;
  const props=await fetch('/api/properties').then(r=>r.json()); _properties=props;
  let barsHtml='';
  for(const p of props){const total=p.units.length,occ=p.units.filter(u=>u.status==='occupied').length,pct=total>0?Math.round((occ/total)*100):0;barsHtml+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span><strong>${p.name}</strong></span><span style="color:var(--muted)">${occ}/${total} &nbsp;<strong>${pct}%</strong></span></div><div class="occ-bar-wrap"><div class="occ-bar" style="width:${pct}%"></div></div></div>`;}
@@ -512,7 +523,7 @@ async function loadProperties() {
  const icons = { house: '', boarding: '', commercial: '' };
  const c = document.getElementById('prop-cards');
  if (!_properties.length) {
- c.innerHTML = '<div class="empty"><div class="empty-icon"></div><p>No properties yet. Click + Add Property to get started.</p></div>';
+ c.innerHTML = '<div class="empty"><p>No properties yet. Click + Add Property to get started.</p></div>';
  return;
  }
  c.innerHTML = _properties.map(p => {
@@ -641,7 +652,7 @@ async function deleteProperty(id){if(!confirm('Delete this property?'))return;aw
 async function loadTenants(){
  _tenants=await fetch('/api/tenants').then(r=>r.json());
  const body=document.getElementById('tenants-body');
- if(!_tenants.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon"></div><p>No tenants yet.</p></div></td></tr>';return;}
+ if(!_tenants.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><p>No tenants yet.</p></div></td></tr>';return;}
  body.innerHTML=_tenants.map((t,i)=>`<tr><td>${i+1}</td><td><strong>${t.name}</strong></td><td>${t.phone||'-'}</td><td>${t.email||'-'}</td><td>${t.lease?`${t.lease.property_name}${t.lease.unit_name?' / '+t.lease.unit_name:''}`:'<span class="badge badge-vacant">No lease</span>'}</td><td>${t.lease?`<span class="badge badge-monthly">${t.lease.ref_no}</span>`:'-'}</td><td><button class="btn btn-outline btn-sm" onclick="openEditTenant(${t.id})"> Edit</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">Delete</button></td></tr>`).join('');
 }
 async function addTenant(){const name=document.getElementById('t-name').value.trim();if(!name){toast('Name required.','error');return;}await fetch('/api/tenants',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone:document.getElementById('t-phone').value,fax:document.getElementById('t-fax').value,email:document.getElementById('t-email').value,postal_address:document.getElementById('t-postal').value,physical_address:document.getElementById('t-physical').value})});closeModal('modal-add-tenant');toast('Tenant added!');loadTenants();}
@@ -686,7 +697,7 @@ async function loadLeases(){
  document.getElementById('l-tenant').innerHTML='<option value="">Select tenant...</option>'+tenants.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
  const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
  const body=document.getElementById('leases-body');
- if(!leases.length){body.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon"></div><p>No leases yet.</p></div></td></tr>';return;}
+ if(!leases.length){body.innerHTML='<tr><td colspan="9"><div class="empty"><p>No leases yet.</p></div></td></tr>';return;}
  body.innerHTML=leases.map(l=>`<tr><td><strong>${l.ref_no}</strong></td><td>${l.tenant_name}</td><td>${l.property_name}${l.unit_name?' / '+l.unit_name:''}</td><td>K${Number(l.rent_amount).toLocaleString()}</td><td>${badge(l.payment_frequency)}</td><td>${fmtDate(l.start_date)}</td><td>${fmtDate(l.end_date)}</td><td>${badge(l.status)}</td><td style="white-space:nowrap">${l.status==='active'?`<button class="btn btn-outline btn-sm" onclick="openEditLease(${l.id})"> Edit</button> <button class="btn btn-danger btn-sm" onclick="terminateLease(${l.id})">Terminate</button>`:'-'}</td></tr>`).join('');
 }
 async function loadUnitsForLease(){const pid=document.getElementById('l-property').value;const sel=document.getElementById('l-unit');sel.innerHTML='<option value="">No specific unit</option>';if(!pid)return;const prop=_properties.find(p=>p.id==pid);if(prop&&prop.units)prop.units.forEach(u=>{sel.innerHTML+=`<option value="${u.id}" data-monthly="${u.rent_monthly}" data-fortnight="${u.rent_fortnightly}">${u.unit_name}</option>`;});updateLeaseRent();}
@@ -701,7 +712,7 @@ async function loadInvoices(){
  const leases=await fetch('/api/leases').then(r=>r.json());
  const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
  const body=document.getElementById('invoices-body');
- if(!_invoices.length){body.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"></div><p>No invoices yet.</p></div></td></tr>';return;}
+ if(!_invoices.length){body.innerHTML='<tr><td colspan="8"><div class="empty"><p>No invoices yet.</p></div></td></tr>';return;}
  body.innerHTML=_invoices.map(i=>{
  const overdue=i.status==='unpaid'&&i.due_date<today;
  const sb=overdue?'<span class="badge badge-overdue">OVERDUE</span>':badge(i.status);
@@ -859,7 +870,7 @@ async function loadPayments(){
  const data=await fetch('/api/invoices').then(r=>r.json());
  const body=document.getElementById('payments-body');
  const paid=data.filter(i=>i.status==='paid');
- if(!paid.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon"></div><p>No payments yet.</p></div></td></tr>';return;}
+ if(!paid.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><p>No payments yet.</p></div></td></tr>';return;}
  const resp=await fetch('/api/payments-list').then(r=>r.ok?r.json():[]).catch(()=>[]);
  if(resp.length>0){body.innerHTML=resp.map(p=>`<tr><td><strong>${p.receipt_no}</strong></td><td>${p.invoice_no}</td><td>${p.tenant_name}</td><td>K${Number(p.amount_paid).toLocaleString()}</td><td>${p.payment_method}</td><td>${fmtDate(p.payment_date)}</td><td>${p.notes||'-'}</td></tr>`).join('');}
  else{body.innerHTML=paid.map(i=>`<tr><td>-</td><td><strong>${i.invoice_no}</strong></td><td>${i.tenant_name}</td><td>K${Number(i.amount_due).toLocaleString()}</td><td>BSP Transfer</td><td>-</td><td>-</td></tr>`).join('');}
@@ -873,7 +884,7 @@ async function loadMaintenance(){
  document.getElementById('m-property').innerHTML='<option value="">Select property...</option>'+props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
  document.getElementById('m-date').value=today;
  const body=document.getElementById('maintenance-body');
- if(!data.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon"></div><p>No maintenance requests.</p></div></td></tr>';return;}
+ if(!data.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><p>No maintenance requests.</p></div></td></tr>';return;}
  body.innerHTML=data.map(m=>`<tr><td><strong>${m.title}</strong><br><small style="color:var(--muted)">${m.description||''}</small></td><td>${m.property_name}${m.unit_name?' / '+m.unit_name:''}</td><td>${badge(''+m.priority)}</td><td>${fmtDate(m.reported_date)}</td><td>${badge(m.status)}</td><td>${m.resolved_date?fmtDate(m.resolved_date):'-'}</td><td style="white-space:nowrap">${m.status==='open'?`<button class="btn btn-success btn-sm" onclick="resolveMaint(${m.id})"> Resolve</button>`:''} <button class="btn btn-danger btn-sm" onclick="deleteMaint(${m.id})">Delete</button></td></tr>`).join('');
 }
 async function loadUnitsForMaint(){const pid=document.getElementById('m-property').value;const sel=document.getElementById('m-unit');sel.innerHTML='<option value="">All / Common area</option>';if(!pid)return;const prop=_properties.find(p=>p.id==pid);if(prop&&prop.units)prop.units.forEach(u=>{sel.innerHTML+=`<option value="${u.id}">${u.unit_name}</option>`;});}

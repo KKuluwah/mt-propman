@@ -26,15 +26,15 @@ router.get('/', async (req, res) => {
   res.json({ pending, notifications: rows });
 });
 
-// Admin — dismiss a notification
-router.put('/:id/dismiss', csrfProtect, async (req, res) => {
-  await db.prepare(`UPDATE notifications SET status='dismissed' WHERE id=$1`).run([req.params.id]);
+// Admin — dismiss all (must be before /:id/dismiss)
+router.put('/dismiss-all', csrfProtect, async (req, res) => {
+  await db.prepare(`UPDATE notifications SET status='dismissed' WHERE status='pending'`).run([]);
   res.json({ ok: true });
 });
 
-// Admin — dismiss all
-router.put('/dismiss-all', csrfProtect, async (req, res) => {
-  await db.prepare(`UPDATE notifications SET status='dismissed' WHERE status='pending'`).run([]);
+// Admin — dismiss a notification
+router.put('/:id/dismiss', csrfProtect, async (req, res) => {
+  await db.prepare(`UPDATE notifications SET status='dismissed' WHERE id=$1`).run([req.params.id]);
   res.json({ ok: true });
 });
 
