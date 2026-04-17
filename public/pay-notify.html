@@ -7,7 +7,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; background: #f4f7fb; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .card { background: #fff; border-radius: 12px; padding: 32px 28px; width: 100%; max-width: 440px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .card { background: #fff; border-radius: 12px; padding: 32px 28px; width: 100%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
   .header { background: #0d2137; margin: -32px -28px 24px; padding: 20px 28px; border-radius: 12px 12px 0 0; }
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon { background: #c8922a; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; flex-shrink: 0; }
@@ -18,19 +18,13 @@
   label { display: block; font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
   input, select, textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #dde3ed; border-radius: 7px; font-size: 14px; margin-bottom: 14px; outline: none; font-family: Arial, sans-serif; transition: border 0.2s; background: #fff; }
   input:focus, select:focus, textarea:focus { border-color: #0d2137; }
-  textarea { resize: vertical; min-height: 60px; }
-  .btn { width: 100%; padding: 12px; background: #0d2137; color: #fff; border: none; border-radius: 7px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-  .btn:hover { background: #1a3a5c; }
-  .btn:disabled { background: #aaa; cursor: not-allowed; }
-  .btn-outline { background: #fff; color: #0d2137; border: 1.5px solid #dde3ed; margin-bottom: 14px; }
+  textarea { resize: vertical; min-height: 70px; }
+  button { width: 100%; padding: 12px; background: #0d2137; color: #fff; border: none; border-radius: 7px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  button:hover { background: #1a3a5c; }
+  button:disabled { background: #aaa; cursor: not-allowed; }
   .success { background: #d1fae5; color: #065f46; padding: 14px; border-radius: 8px; font-size: 14px; text-align: center; display: none; margin-bottom: 16px; }
   .error { background: #fee2e2; color: #b22a2a; padding: 14px; border-radius: 8px; font-size: 14px; display: none; margin-bottom: 16px; }
   .required { color: #b22a2a; }
-  .invoice-box { background: #f4f7fb; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; display: none; }
-  .invoice-box .inv-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .invoice-box .inv-label { color: #888; }
-  .invoice-box .inv-val { font-weight: 700; color: #0d2137; }
-  #step2 { display: none; }
 </style>
 </head>
 <body>
@@ -46,149 +40,88 @@
   </div>
 
   <h2>Notify Payment</h2>
-  <p class="sub">Enter your name to find your invoice, then submit your payment details.</p>
+  <p class="sub">Fill in your payment details below. Your property manager will be notified and send you a receipt.</p>
 
   <div class="success" id="success">
     Thank you! Your payment notification has been sent. Your property manager will verify and send your receipt shortly.
   </div>
   <div class="error" id="error"></div>
 
-  <!-- Step 1: Name lookup -->
-  <div id="step1">
+  <form id="form">
     <label>Your Full Name <span class="required">*</span></label>
-    <input type="text" id="tenant_name" placeholder="e.g. John Smith" autocomplete="name">
-    <button type="button" class="btn" id="lookup-btn" onclick="lookupInvoices()">Find My Invoices</button>
-  </div>
+    <input type="text" id="tenant_name" placeholder="e.g. John Smith" required>
 
-  <!-- Step 2: Invoice selection + payment details -->
-  <div id="step2">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-      <button type="button" class="btn-outline btn" style="width:auto;padding:6px 14px;font-size:13px" onclick="resetForm()">Back</button>
-      <span style="font-size:14px;color:#0d2137;font-weight:700" id="name-display"></span>
-    </div>
-
-    <label>Select Invoice <span class="required">*</span></label>
-    <select id="invoice_select" onchange="onInvoiceSelect()">
+    <label>Invoice Number <span class="required">*</span></label>
+    <select id="invoice_select" required>
       <option value="">-- Select your invoice --</option>
     </select>
 
-    <!-- Invoice details preview -->
-    <div class="invoice-box" id="invoice-preview">
-      <div class="inv-row"><span class="inv-label">Invoice No.</span><span class="inv-val" id="prev-no"></span></div>
-      <div class="inv-row"><span class="inv-label">Property</span><span class="inv-val" id="prev-prop"></span></div>
-      <div class="inv-row"><span class="inv-label">Period</span><span class="inv-val" id="prev-period"></span></div>
-      <div class="inv-row"><span class="inv-label">Amount Due</span><span class="inv-val" id="prev-amount"></span></div>
-      <div class="inv-row"><span class="inv-label">Due Date</span><span class="inv-val" id="prev-due"></span></div>
-    </div>
+    <label>Amount Paid (K) <span class="required">*</span></label>
+    <input type="number" id="amount" placeholder="e.g. 2000" required>
 
-    <form id="form">
-      <label>Amount Paid (K) <span class="required">*</span></label>
-      <input type="number" id="amount" placeholder="e.g. 2000" required>
+    <label>Date Paid <span class="required">*</span></label>
+    <input type="date" id="payment_date" required>
 
-      <label>Date Paid <span class="required">*</span></label>
-      <input type="date" id="payment_date" required>
+    <label>Bank Reference / Transaction ID</label>
+    <input type="text" id="bank_reference" placeholder="e.g. BSP ref number">
 
-      <label>Bank Reference / Transaction ID</label>
-      <input type="text" id="bank_reference" placeholder="e.g. BSP ref number">
+    <label>Notes (optional)</label>
+    <textarea id="notes" placeholder="Any additional information..."></textarea>
 
-      <label>Notes (optional)</label>
-      <textarea id="notes" placeholder="Any additional information..."></textarea>
-
-      <button type="submit" class="btn" id="btn">Send Notification</button>
-    </form>
-  </div>
+    <button type="submit" id="btn">Send Notification</button>
+  </form>
 </div>
 
 <script>
   document.getElementById('payment_date').value = new Date().toISOString().split('T')[0];
 
-  let selectedInvoice = null;
-  let invoiceList = [];
-
-  // Allow pressing Enter on name field
-  document.getElementById('tenant_name').addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); lookupInvoices(); }
-  });
-
-  async function lookupInvoices() {
-    const name = document.getElementById('tenant_name').value.trim();
-    if (!name) { showError('Please enter your full name.'); return; }
-
-    const btn = document.getElementById('lookup-btn');
-    btn.disabled = true;
-    btn.textContent = 'Searching...';
-    clearError();
-
-    const res = await fetch('/api/notifications/lookup?name=' + encodeURIComponent(name));
+  // Load all unpaid invoices into the dropdown on page load
+  async function loadInvoices() {
+    const res = await fetch('/api/notifications/lookup?name=');
     const data = await res.json();
-
-    btn.disabled = false;
-    btn.textContent = 'Find My Invoices';
-
+    const sel = document.getElementById('invoice_select');
     if (!data.length) {
-      showError('No unpaid invoices found for "' + name + '". Please check your name or contact your property manager.');
+      sel.innerHTML = '<option value="">No unpaid invoices found</option>';
       return;
     }
-
-    invoiceList = data;
-    const sel = document.getElementById('invoice_select');
-    sel.innerHTML = '<option value="">-- Select your invoice --</option>';
     data.forEach(inv => {
-      const label = inv.invoice_no + ' -- ' + inv.property_name + (inv.unit_name ? ' / ' + inv.unit_name : '') + ' -- K' + Number(inv.amount_due).toLocaleString();
-      sel.innerHTML += '<option value="' + inv.id + '">' + label + '</option>';
+      const label = inv.invoice_no + ' -- ' + inv.tenant_name + ' -- ' + inv.property_name + (inv.unit_name ? ' / ' + inv.unit_name : '') + ' -- K' + Number(inv.amount_due).toLocaleString();
+      const opt = document.createElement('option');
+      opt.value = inv.id;
+      opt.dataset.amount = inv.amount_due;
+      opt.dataset.invoice_no = inv.invoice_no;
+      opt.textContent = label;
+      sel.appendChild(opt);
     });
-
-    document.getElementById('name-display').textContent = name;
-    document.getElementById('step1').style.display = 'none';
-    document.getElementById('step2').style.display = 'block';
   }
 
-  function onInvoiceSelect() {
-    const id = parseInt(document.getElementById('invoice_select').value);
-    selectedInvoice = invoiceList.find(i => i.id === id) || null;
-    const preview = document.getElementById('invoice-preview');
-    if (!selectedInvoice) { preview.style.display = 'none'; return; }
+  // Auto-fill amount when invoice is selected
+  document.getElementById('invoice_select').addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    if (opt && opt.dataset.amount) {
+      document.getElementById('amount').value = opt.dataset.amount;
+    }
+  });
 
-    document.getElementById('prev-no').textContent = selectedInvoice.invoice_no;
-    document.getElementById('prev-prop').textContent = selectedInvoice.property_name + (selectedInvoice.unit_name ? ' / ' + selectedInvoice.unit_name : '');
-    document.getElementById('prev-period').textContent = fmtD(selectedInvoice.period_start) + ' - ' + fmtD(selectedInvoice.period_end);
-    document.getElementById('prev-amount').textContent = 'K' + Number(selectedInvoice.amount_due).toLocaleString();
-    document.getElementById('prev-due').textContent = fmtD(selectedInvoice.due_date);
-    document.getElementById('amount').value = selectedInvoice.amount_due;
-    preview.style.display = 'block';
-  }
-
-  function fmtD(d) {
-    if (!d) return '-';
-    return new Date(d + 'T00:00:00').toLocaleDateString('en-PG', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  function resetForm() {
-    document.getElementById('step1').style.display = 'block';
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('invoice-preview').style.display = 'none';
-    selectedInvoice = null;
-    clearError();
-  }
-
-  function showError(msg) {
-    const el = document.getElementById('error');
-    el.textContent = msg;
-    el.style.display = 'block';
-  }
-
-  function clearError() {
-    document.getElementById('error').style.display = 'none';
-  }
+  loadInvoices();
 
   document.getElementById('form').onsubmit = async (e) => {
     e.preventDefault();
-    if (!selectedInvoice) { showError('Please select an invoice.'); return; }
-
     const btn = document.getElementById('btn');
+    const success = document.getElementById('success');
+    const error = document.getElementById('error');
+    error.style.display = 'none';
+
+    const sel = document.getElementById('invoice_select');
+    const opt = sel.options[sel.selectedIndex];
+    if (!sel.value) {
+      error.textContent = 'Please select an invoice number.';
+      error.style.display = 'block';
+      return;
+    }
+
     btn.disabled = true;
     btn.textContent = 'Sending...';
-    clearError();
 
     const res = await fetch('/api/notifications/pay-notify', {
       method: 'POST',
@@ -199,17 +132,18 @@
         payment_date: document.getElementById('payment_date').value,
         bank_reference: document.getElementById('bank_reference').value.trim(),
         notes: document.getElementById('notes').value.trim(),
-        invoice_id: selectedInvoice.id,
-        invoice_no: selectedInvoice.invoice_no
+        invoice_id: sel.value,
+        invoice_no: opt.dataset.invoice_no
       })
     });
 
     const data = await res.json();
     if (res.ok) {
-      document.getElementById('step2').style.display = 'none';
-      document.getElementById('success').style.display = 'block';
+      document.getElementById('form').style.display = 'none';
+      success.style.display = 'block';
     } else {
-      showError(data.error || 'Something went wrong. Please try again.');
+      error.textContent = data.error || 'Something went wrong. Please try again.';
+      error.style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Send Notification';
     }

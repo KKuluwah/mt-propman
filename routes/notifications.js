@@ -4,22 +4,36 @@ import csrfProtect from '../middleware/csrf.js';
 
 const router = express.Router();
 
-// Public -- lookup unpaid invoices by tenant name
+// Public -- lookup unpaid invoices (all if no name, filtered if name provided)
 router.get('/lookup', async (req, res) => {
   const name = (req.query.name || '').trim();
-  if (!name || name.length < 2) return res.json([]);
-  const invoices = await db.prepare(`
-    SELECT i.id, i.invoice_no, i.amount_due, i.due_date, i.period_start, i.period_end,
-           t.name as tenant_name, p.name as property_name, u.unit_name
-    FROM invoices i
-    JOIN leases l ON i.lease_id = l.id
-    JOIN tenants t ON l.tenant_id = t.id
-    JOIN properties p ON l.property_id = p.id
-    LEFT JOIN units u ON l.unit_id = u.id
-    WHERE i.status = 'unpaid'
-      AND LOWER(t.name) LIKE LOWER($1)
-    ORDER BY i.due_date ASC
-  `).all([`%${name}%`]);
+  let invoices;
+  if (!name) {
+    invoices = await db.prepare(`
+      SELECT i.id, i.invoice_no, i.amount_due, i.due_date, i.period_start, i.period_end,
+             t.name as tenant_name, p.name as property_name, u.unit_name
+      FROM invoices i
+      JOIN leases l ON i.lease_id = l.id
+      JOIN tenants t ON l.tenant_id = t.id
+      JOIN properties p ON l.property_id = p.id
+      LEFT JOIN units u ON l.unit_id = u.id
+      WHERE i.status = 'unpaid'
+      ORDER BY i.due_date ASC
+    `).all();
+  } else {
+    invoices = await db.prepare(`
+      SELECT i.id, i.invoice_no, i.amount_due, i.due_date, i.period_start, i.period_end,
+             t.name as tenant_name, p.name as property_name, u.unit_name
+      FROM invoices i
+      JOIN leases l ON i.lease_id = l.id
+      JOIN tenants t ON l.tenant_id = t.id
+      JOIN properties p ON l.property_id = p.id
+      LEFT JOIN units u ON l.unit_id = u.id
+      WHERE i.status = 'unpaid'
+        AND LOWER(t.name) LIKE LOWER($1)
+      ORDER BY i.due_date ASC
+    `).all([`%${name}%`]);
+  }
   res.json(invoices);
 });
 
