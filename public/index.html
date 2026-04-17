@@ -1003,7 +1003,6 @@ async function confirmSendEmail(){
  btn.textContent=' Confirm & Send Email';btn.disabled=false;
 }
 
-loadDashboard();
 
 // Edit Lease
 function openEditLease(id) {
@@ -1244,9 +1243,13 @@ loadBell();
 
 // Redirect to login if session expires
 window.addEventListener('load', async () => {
+ try {
  const r = await fetch('/auth/status');
  const d = await r.json();
- if (!d.loggedIn) window.location.href = '/login.html';
+ if (!d.loggedIn) { window.location.href = '/login.html'; return; }
+ loadDashboard();
+ loadBell();
+ } catch(e) { console.error('Auth check failed', e); }
 });
 
 </script>
