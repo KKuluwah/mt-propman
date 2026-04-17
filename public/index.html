@@ -1237,9 +1237,6 @@ async function dismissAll() {
  await fetch('/api/notifications/dismiss-all', { method: 'PUT' });
  loadBell();
 }
-// Poll for new notifications every 60 seconds
-setInterval(loadBell, 60000);
-loadBell();
 
 // Redirect to login if session expires
 window.addEventListener('load', async () => {
@@ -1249,6 +1246,7 @@ window.addEventListener('load', async () => {
  if (!d.loggedIn) { window.location.href = '/login.html'; return; }
  loadDashboard();
  loadBell();
+ setInterval(loadBell, 60000);
  } catch(e) { console.error('Auth check failed', e); }
 });
 
