@@ -151,6 +151,10 @@ CREATE TABLE IF NOT EXISTS notifications (
 async function prepareSchema() {
   await pool.query(schemaSql);
 
+  // Add columns that may not exist in older deployments
+  await pool.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS invoice_no TEXT`);
+  await pool.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL`);
+
   const settingsDefaults = [
     ['company_name', 'Mayemou Trading'],
     ['contact_person', 'Anna Kuluwah'],

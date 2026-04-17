@@ -58,42 +58,46 @@ export async function runScheduler() {
 }
 
 async function checkUpcomingReminders() {
-  // Find unpaid invoices due in 1, 2 or 3 days that haven't been reminded yet
-  const upcoming = await db.prepare(`
-    SELECT i.id, i.invoice_no, i.amount_due, i.due_date,
-           t.name as tenant_name, p.name as property_name, u.unit_name,
-           (i.due_date::date - current_date) as days_until_due
-    FROM invoices i
-    JOIN leases l ON i.lease_id = l.id
-    JOIN tenants t ON l.tenant_id = t.id
-    JOIN properties p ON l.property_id = p.id
-    LEFT JOIN units u ON l.unit_id = u.id
-    WHERE i.status = 'unpaid'
-      AND i.due_date::date BETWEEN current_date AND current_date + INTERVAL '3 days'
-      AND NOT EXISTS (
-        SELECT 1 FROM notifications n
-        WHERE n.invoice_no = i.invoice_no
-          AND n.status = 'reminder'
-      )
-  `).all();
+  try {
+    // Find unpaid invoices due in 1, 2 or 3 days that haven't been reminded yet
+    const upcoming = await db.prepare(`
+      SELECT i.id, i.invoice_no, i.amount_due, i.due_date,
+             t.name as tenant_name, p.name as property_name, u.unit_name,
+             (i.due_date::date - current_date) as days_until_due
+      FROM invoices i
+      JOIN leases l ON i.lease_id = l.id
+      JOIN tenants t ON l.tenant_id = t.id
+      JOIN properties p ON l.property_id = p.id
+      LEFT JOIN units u ON l.unit_id = u.id
+      WHERE i.status = 'unpaid'
+        AND i.due_date::date BETWEEN current_date AND current_date + INTERVAL '3 days'
+        AND NOT EXISTS (
+          SELECT 1 FROM notifications n2
+          WHERE n2.notes LIKE '%' || i.invoice_no || '%'
+            AND n2.status = 'reminder'
+        )
+    `).all();
 
-  for (const inv of upcoming) {
-    const daysText = inv.days_until_due === 0 ? 'DUE TODAY' : `due in ${inv.days_until_due} day(s)`;
-    await db.prepare(
-      `INSERT INTO notifications (tenant_name, amount, payment_date, bank_reference, notes, invoice_no, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'reminder')`
-    ).run([
-      inv.tenant_name,
-      inv.amount_due,
-      inv.due_date,
-      '',
-      `REMINDER: Invoice ${inv.invoice_no} for ${inv.property_name}${inv.unit_name ? ' / ' + inv.unit_name : ''} is ${daysText}. Please send invoice email to tenant.`,
-      inv.invoice_no
-    ]);
-  }
+    for (const inv of upcoming) {
+      const daysText = inv.days_until_due === 0 ? 'DUE TODAY' : `due in ${inv.days_until_due} day(s)`;
+      await db.prepare(
+        `INSERT INTO notifications (tenant_name, amount, payment_date, bank_reference, notes, invoice_no, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'reminder')`
+      ).run([
+        inv.tenant_name,
+        inv.amount_due,
+        inv.due_date,
+        '',
+        `REMINDER: Invoice ${inv.invoice_no} for ${inv.property_name}${inv.unit_name ? ' / ' + inv.unit_name : ''} is ${daysText}. Please send invoice email to tenant.`,
+        inv.invoice_no
+      ]);
+    }
 
-  if (upcoming.length > 0) {
-    console.log(`Scheduler: created ${upcoming.length} reminder(s) for upcoming invoices`);
+    if (upcoming.length > 0) {
+      console.log(`Scheduler: created ${upcoming.length} reminder(s) for upcoming invoices`);
+    }
+  } catch (err) {
+    console.error('Reminder error:', err.message);
   }
 }
 

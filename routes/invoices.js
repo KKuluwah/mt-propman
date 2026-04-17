@@ -23,13 +23,17 @@ router.get('/', async (req, res) => {
 
 router.post('/generate', csrfProtect, async (req, res) => {
   const { lease_id, period_start, period_end, due_date, amount_due } = req.body;
+  if (!lease_id) return res.status(400).json({ error: 'Lease is required.' });
   const lease = await db.prepare('SELECT * FROM leases WHERE id = $1').get([lease_id]);
   if (!lease) return res.status(404).json({ message: 'Lease not found.' });
   const invoice_no = await generateRef('MT-INV');
   const finalAmount = amount_due || lease.rent_amount;
+  const finalStart = period_start || new Date().toISOString().split('T')[0];
+  const finalEnd = period_end || finalStart;
+  const finalDue = due_date || finalEnd;
   const result = await db.prepare(
     'INSERT INTO invoices (lease_id, invoice_no, period_start, period_end, amount_due, due_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id'
-  ).run([lease_id, invoice_no, period_start, period_end, finalAmount, due_date]);
+  ).run([lease_id, invoice_no, finalStart, finalEnd, finalAmount, finalDue]);
   res.json({ id: result.lastInsertRowid, invoice_no, message: 'Invoice generated.' });
 });
 
