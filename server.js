@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import 'express-async-errors';
 import express from 'express';
 import session from 'express-session';
@@ -20,6 +20,8 @@ import maintenanceRouter from './routes/maintenance.js';
 import settingsRouter from './routes/settings.js';
 import reportsRouter from './routes/reports.js';
 import bulkRouter from './routes/bulk.js';
+import notificationsRouter from './routes/notifications.js';
+import { startScheduler } from './routes/scheduler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +32,7 @@ const publicDir = path.resolve(__dirname, 'public');
 // Simple request counter for health endpoint
 const metrics = { requests: 0, errors: 0, startTime: Date.now() };
 
-// ── Core Middleware ───────────────────────────────────────────────────────────
+// â”€â”€ Core Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -42,7 +44,7 @@ app.use(morgan('combined', {
 }));
 app.use((req, res, next) => { metrics.requests++; next(); });
 
-// Session for admin auth — stored in PostgreSQL so sessions survive restarts
+// Session for admin auth â€” stored in PostgreSQL so sessions survive restarts
 const PgSession = connectPgSimple(session);
 app.use(session({
   store: new PgSession({
@@ -61,7 +63,7 @@ app.use(session({
   }
 }));
 
-// ── Health Check (public — used by Render uptime monitoring) ──────────────────
+// â”€â”€ Health Check (public â€” used by Render uptime monitoring) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.get('/health', async (req, res) => {
   const dbHealth = await checkDbHealth();
@@ -84,7 +86,7 @@ app.get('/health', async (req, res) => {
   });
 });
 
-// ── Admin Auth Routes ─────────────────────────────────────────────────────────
+// â”€â”€ Admin Auth Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.post('/auth/login', apiLimiter, async (req, res) => {
   const { username, password } = req.body;
@@ -117,7 +119,7 @@ app.get('/auth/status', (req, res) => {
   res.json({ loggedIn: !!req.session?.admin });
 });
 
-// ── Static Files ──────────────────────────────────────────────────────────────
+// â”€â”€ Static Files â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // login.html is public
 app.use(express.static(publicDir, { index: false }));
@@ -126,10 +128,24 @@ app.use('/uploads', express.static(path.resolve(__dirname, 'public/uploads')));
 // Serve login page
 app.get('/login.html', (req, res) => res.sendFile(path.resolve(publicDir, 'login.html')));
 
-// Main app — requires login
+// Serve pay-notify page publicly (no login needed)
+app.get('/pay-notify.html', (req, res) => res.sendFile(path.resolve(publicDir, 'pay-notify.html')));
+
+// Main app â€” requires login
 app.get('/', requireAdmin, (req, res) => res.sendFile(path.resolve(publicDir, 'index.html')));
 
-// ── API Routes (all require admin session) ────────────────────────────────────
+// â”€â”€ API Routes (all require admin session) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// Public -- tenant payment notification (no login needed)
+app.post('/api/notifications/pay-notify', async (req, res) => {
+  const { tenant_name, amount, payment_date, bank_reference, notes } = req.body;
+  if (!tenant_name || !amount || !payment_date)
+    return res.status(400).json({ error: 'Name, amount and date are required.' });
+  await db.prepare(
+    `INSERT INTO notifications (tenant_name, amount, payment_date, bank_reference, notes) VALUES ($1,$2,$3,$4,$5)`
+  ).run([tenant_name, amount, payment_date, bank_reference || '', notes || '']);
+  res.json({ ok: true, message: 'Payment notification sent.' });
+});
 
 app.use('/api', requireAdmin, apiLimiter);
 app.use('/api/properties', propertiesRouter);
@@ -141,6 +157,7 @@ app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/bulk', bulkRouter);
+app.use('/api/notifications', notificationsRouter);
 
 app.get('/api/payments-list', requireAdmin, apiLimiter, async (req, res) => {
   const payments = await db.prepare(`
@@ -199,7 +216,7 @@ app.get('/api/dashboard', requireAdmin, apiLimiter, async (req, res) => {
   });
 });
 
-// ── Error Handling ────────────────────────────────────────────────────────────
+// â”€â”€ Error Handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.use((err, req, res, next) => {
   metrics.errors++;
@@ -213,14 +230,14 @@ app.use((err, req, res, next) => {
 
 app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path }));
 
-// ── Graceful Shutdown ─────────────────────────────────────────────────────────
+// â”€â”€ Graceful Shutdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-process.on('SIGTERM', () => { logger.info('SIGTERM — shutting down'); process.exit(0); });
-process.on('SIGINT',  () => { logger.info('SIGINT — shutting down');  process.exit(0); });
+process.on('SIGTERM', () => { logger.info('SIGTERM â€” shutting down'); process.exit(0); });
+process.on('SIGINT',  () => { logger.info('SIGINT â€” shutting down');  process.exit(0); });
 process.on('uncaughtException',  (err)    => { logger.error('Uncaught exception',        { message: err.message, stack: err.stack }); process.exit(1); });
 process.on('unhandledRejection', (reason) => { logger.error('Unhandled rejection',       { reason: String(reason) }); });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Start â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.listen(port, () => {
   logger.info('MT-PropMan started', {
@@ -230,4 +247,5 @@ app.listen(port, () => {
     adminUser: process.env.ADMIN_USER || 'admin',
     authMode: process.env.ADMIN_PASSWORD_HASH ? 'bcrypt' : 'plaintext (set ADMIN_PASSWORD_HASH in production)'
   });
+  startScheduler();
 });

@@ -133,6 +133,17 @@ CREATE TABLE IF NOT EXISTS tenant_maintenance_photos (
   filename TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id SERIAL PRIMARY KEY,
+  tenant_name TEXT NOT NULL,
+  amount NUMERIC NOT NULL,
+  payment_date DATE NOT NULL,
+  bank_reference TEXT,
+  notes TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 `;
 
 async function prepareSchema() {
