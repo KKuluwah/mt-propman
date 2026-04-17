@@ -133,10 +133,10 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
    <div class="nav-item" onclick="showTab('reports', this)"><span class="icon">ðŸ“Š</span> Reports</div>
 
     <div class="nav-section">System</div>
-    <div class="nav-item" onclick="showTab('settings', this)"><span class="icon">âš™ï¸</span> Settings</div>
+    <div class="nav-item" onclick="showTab('settings', this)"><span class="icon">&#9881;</span> Settings</div>
   </nav>
   <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:8px">
-    <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%;color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)">â» Logout</button>
+    <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%;color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)">&#9211; Logout</button>
     <span>MT-PropMan v2.1 &copy; 2026</span>
   </div>
 </div>
@@ -242,10 +242,10 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
     <div class="card-header">
       <h3>ðŸ“Š Reports & Analytics</h3>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="exportCSV('tenants')">â¬‡ Tenants CSV</button>
-        <button class="btn btn-outline btn-sm" onclick="exportCSV('properties')">â¬‡ Properties CSV</button>
-        <button class="btn btn-outline btn-sm" onclick="exportCSV('leases')">â¬‡ Leases CSV</button>
-        <button class="btn btn-outline btn-sm" onclick="exportCSV('payments')">â¬‡ Payments CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('tenants')">&#8595;‡ Tenants CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('properties')">&#8595;‡ Properties CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('leases')">&#8595;‡ Leases CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('payments')">&#8595;‡ Payments CSV</button>
       </div>
     </div>
     <div class="card-body" style="padding:20px">
@@ -286,7 +286,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
   <!-- Late Fees Card -->
   <div class="card" style="margin-top:16px">
     <div class="card-header">
-      <h3>âš ï¸ Late Fees</h3>
+      <h3>âš &#65039; Late Fees</h3>
       <button class="btn btn-outline btn-sm" onclick="previewLateFees()">Preview</button>
     </div>
     <div class="card-body" style="padding:16px">
@@ -432,8 +432,8 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
     <div class="modal-body" id="invoice-print-content"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-print-invoice')">Close</button>
-      <button class="btn btn-accent" onclick="downloadInvoicePDF()">â¬‡ Download PDF</button>
-      <button class="btn btn-primary" onclick="window.print()">ðŸ–¨ï¸ Print</button>
+      <button class="btn btn-accent" onclick="downloadInvoicePDF()">&#8595;‡ Download PDF</button>
+      <button class="btn btn-primary" onclick="window.print()">ðŸ–¨&#65039; Print</button>
     </div>
   </div>
 </div>
@@ -452,7 +452,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
         <iframe id="email-iframe" style="width:100%;height:440px;border:1px solid #dde3ed;border-radius:8px;background:#f4f7fb" srcdoc="<p style='font-family:Arial;padding:20px;color:#888'>Loading preview...</p>"></iframe>
       </div>
       <div style="margin:14px 24px 0;padding:12px 16px;background:#fff3dc;border-radius:8px;font-size:13px;color:#8a5000;border:1px solid #f0d090">
-        âš ï¸ <strong>Review carefully before confirming.</strong> The tenant will receive this email the moment you click Send.
+        âš &#65039; <strong>Review carefully before confirming.</strong> The tenant will receive this email the moment you click Send.
       </div>
       <div style="height:14px"></div>
     </div>
@@ -509,7 +509,7 @@ async function loadDashboard() {
 
 async function loadProperties() {
   _properties = await fetch('/api/properties').then(r => r.json());
-  const icons = { house: '&#127968;', boarding: 'ðŸ¢', commercial: 'ðŸ—ï¸' };
+  const icons = { house: '&#127968;', boarding: 'ðŸ¢', commercial: 'ðŸ—&#65039;' };
   const c = document.getElementById('prop-cards');
   if (!_properties.length) {
     c.innerHTML = '<div class="empty"><div class="empty-icon">&#127968;</div><p>No properties yet. Click + Add Property to get started.</p></div>';
@@ -542,7 +542,7 @@ async function loadProperties() {
         <span class="unit-rent">K${u.rent_monthly}/mo</span>
         <span>${badge(u.status)}</span>
         <span class="unit-actions">
-          <button class="btn btn-outline btn-xs" onclick="openEditUnit(${u.id},'${u.unit_name}',${u.rent_monthly},${u.rent_fortnightly})">âœï¸</button>
+          <button class="btn btn-outline btn-xs" onclick="openEditUnit(${u.id},'${u.unit_name}',${u.rent_monthly},${u.rent_fortnightly})">âœ&#65039;</button>
           ${u.status === 'vacant'
             ? `<button class="btn btn-success btn-xs" onclick="setUnitStatus(${u.id},'occupied')">Set Occupied</button>`
             : `<button class="btn btn-outline btn-xs" onclick="setUnitStatus(${u.id},'vacant')">Set Vacant</button>`}
@@ -560,7 +560,7 @@ async function loadProperties() {
         ${total > 0 ? `<div class="units-section">${uHtml}</div>` : ''}
       </div>
       <div class="prop-card-footer">
-        <button class="btn btn-accent btn-sm" onclick="openEditProperty(${p.id})">âœï¸ Edit</button>
+        <button class="btn btn-accent btn-sm" onclick="openEditProperty(${p.id})">âœ&#65039; Edit</button>
         <button class="btn btn-outline btn-sm" onclick="deleteProperty(${p.id})">ðŸ—‘ Delete</button>
       </div>
     </div>`;
@@ -642,7 +642,7 @@ async function loadTenants(){
   _tenants=await fetch('/api/tenants').then(r=>r.json());
   const body=document.getElementById('tenants-body');
   if(!_tenants.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">&#128101;</div><p>No tenants yet.</p></div></td></tr>';return;}
-  body.innerHTML=_tenants.map((t,i)=>`<tr><td>${i+1}</td><td><strong>${t.name}</strong></td><td>${t.phone||'-'}</td><td>${t.email||'-'}</td><td>${t.lease?`${t.lease.property_name}${t.lease.unit_name?' / '+t.lease.unit_name:''}`:'<span class="badge badge-vacant">No lease</span>'}</td><td>${t.lease?`<span class="badge badge-monthly">${t.lease.ref_no}</span>`:'-'}</td><td><button class="btn btn-outline btn-sm" onclick="openEditTenant(${t.id})">âœï¸ Edit</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">Delete</button></td></tr>`).join('');
+  body.innerHTML=_tenants.map((t,i)=>`<tr><td>${i+1}</td><td><strong>${t.name}</strong></td><td>${t.phone||'-'}</td><td>${t.email||'-'}</td><td>${t.lease?`${t.lease.property_name}${t.lease.unit_name?' / '+t.lease.unit_name:''}`:'<span class="badge badge-vacant">No lease</span>'}</td><td>${t.lease?`<span class="badge badge-monthly">${t.lease.ref_no}</span>`:'-'}</td><td><button class="btn btn-outline btn-sm" onclick="openEditTenant(${t.id})">âœ&#65039; Edit</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">Delete</button></td></tr>`).join('');
 }
 async function addTenant(){const name=document.getElementById('t-name').value.trim();if(!name){toast('Name required.','error');return;}await fetch('/api/tenants',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone:document.getElementById('t-phone').value,fax:document.getElementById('t-fax').value,email:document.getElementById('t-email').value,postal_address:document.getElementById('t-postal').value,physical_address:document.getElementById('t-physical').value})});closeModal('modal-add-tenant');toast('Tenant added!');loadTenants();}
 async function deleteTenant(id){if(!confirm('Delete tenant?'))return;await fetch(`/api/tenants/${id}`,{method:'DELETE'});toast('Deleted.');loadTenants();}
@@ -687,7 +687,7 @@ async function loadLeases(){
   const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} â€” ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
   const body=document.getElementById('leases-body');
   if(!leases.length){body.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">&#128203;</div><p>No leases yet.</p></div></td></tr>';return;}
-  body.innerHTML=leases.map(l=>`<tr><td><strong>${l.ref_no}</strong></td><td>${l.tenant_name}</td><td>${l.property_name}${l.unit_name?' / '+l.unit_name:''}</td><td>K${Number(l.rent_amount).toLocaleString()}</td><td>${badge(l.payment_frequency)}</td><td>${fmtDate(l.start_date)}</td><td>${fmtDate(l.end_date)}</td><td>${badge(l.status)}</td><td style="white-space:nowrap">${l.status==='active'?`<button class="btn btn-outline btn-sm" onclick="openEditLease(${l.id})">âœï¸ Edit</button> <button class="btn btn-danger btn-sm" onclick="terminateLease(${l.id})">Terminate</button>`:'-'}</td></tr>`).join('');
+  body.innerHTML=leases.map(l=>`<tr><td><strong>${l.ref_no}</strong></td><td>${l.tenant_name}</td><td>${l.property_name}${l.unit_name?' / '+l.unit_name:''}</td><td>K${Number(l.rent_amount).toLocaleString()}</td><td>${badge(l.payment_frequency)}</td><td>${fmtDate(l.start_date)}</td><td>${fmtDate(l.end_date)}</td><td>${badge(l.status)}</td><td style="white-space:nowrap">${l.status==='active'?`<button class="btn btn-outline btn-sm" onclick="openEditLease(${l.id})">âœ&#65039; Edit</button> <button class="btn btn-danger btn-sm" onclick="terminateLease(${l.id})">Terminate</button>`:'-'}</td></tr>`).join('');
 }
 async function loadUnitsForLease(){const pid=document.getElementById('l-property').value;const sel=document.getElementById('l-unit');sel.innerHTML='<option value="">No specific unit</option>';if(!pid)return;const prop=_properties.find(p=>p.id==pid);if(prop&&prop.units)prop.units.forEach(u=>{sel.innerHTML+=`<option value="${u.id}" data-monthly="${u.rent_monthly}" data-fortnight="${u.rent_fortnightly}">${u.unit_name}</option>`;});updateLeaseRent();}
 function updateLeaseRent(){const freq=document.getElementById('l-freq').value;const opt=document.getElementById('l-unit').options[document.getElementById('l-unit').selectedIndex];if(opt&&opt.dataset.monthly)document.getElementById('l-rent').value=freq==='monthly'?opt.dataset.monthly:opt.dataset.fortnight;}
@@ -705,7 +705,7 @@ async function loadInvoices(){
   body.innerHTML=_invoices.map(i=>{
     const overdue=i.status==='unpaid'&&i.due_date<today;
     const sb=overdue?'<span class="badge badge-overdue">OVERDUE</span>':badge(i.status);
-    const eb=i.email_sent?'<span style="font-size:11px;color:var(--success);margin-left:4px">âœ‰ï¸ Sent</span>':'';
+    const eb=i.email_sent?'<span style="font-size:11px;color:var(--success);margin-left:4px">âœ‰&#65039; Sent</span>':'';
     return `<tr><td><strong>${i.invoice_no}</strong></td><td>${i.tenant_name}</td><td>${i.property_name}${i.unit_name?' / '+i.unit_name:''}</td><td>${fmtDate(i.period_start)} â€“ ${fmtDate(i.period_end)}</td><td>K${Number(i.amount_due).toLocaleString()}</td><td>${fmtDate(i.due_date)}</td><td>${sb}${eb}</td><td style="white-space:nowrap">${i.status==='unpaid'?`<button class="btn btn-success btn-sm" onclick="openPayModal(${i.id},${i.amount_due})">Pay</button>`:''} <button class="btn btn-outline btn-sm" onclick="printInvoice(${i.id})" title="View / Print / Download">ðŸ–¨</button> <button class="btn btn-outline btn-sm" onclick="previewEmail(${i.id})" title="Email invoice">ðŸ“§</button></td></tr>`;
   }).join('');
 }
@@ -781,7 +781,7 @@ function buildInvoiceHTML(inv) {
         <tr>
           <td style="padding:12px 14px;border-bottom:1px solid #ddd;color:#111">
             <strong>Security Bond</strong>
-            <span style="border:1px solid #c8922a;color:#c8922a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">ONE-TIME Â· REFUNDABLE</span>
+            <span style="border:1px solid #c8922a;color:#c8922a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">ONE-TIME &middot; REFUNDABLE</span>
           </td>
           <td style="padding:12px 14px;text-align:right;font-weight:800;font-size:16px;color:#0d2137">K${Number(inv.bond_amount).toLocaleString()}</td>
         </tr>`:''}
@@ -947,7 +947,7 @@ async function previewEmail(invoiceId){
     <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
       <tr style="background:#0d2137"><th style="padding:8px 12px;text-align:left;color:#fff;font-size:12px">Description</th><th style="padding:8px 12px;text-align:right;color:#fff;font-size:12px">Amount</th></tr>
       <tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Rental â€” ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''}</td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.amount_due).toLocaleString()}</td></tr>
-      ${Number(inv.bond_amount)>0?`<tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Security Bond <span style="background:#fff3dc;color:#8a5000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px">ONE-TIME Â· REFUNDABLE</span></td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.bond_amount).toLocaleString()}</td></tr>`:''}
+      ${Number(inv.bond_amount)>0?`<tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Security Bond <span style="background:#fff3dc;color:#8a5000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px">ONE-TIME &middot; REFUNDABLE</span></td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.bond_amount).toLocaleString()}</td></tr>`:''}
       <tr style="background:#f4f7fb"><td style="padding:10px 12px;font-weight:700">TOTAL DUE</td><td style="padding:10px 12px;text-align:right;font-size:18px;font-weight:700;color:#0d2137">K${totalDue.toLocaleString()}</td></tr>
     </table>
     <div style="background:#0d2137;color:#fff;border-radius:8px;padding:14px 18px;margin-bottom:14px">
@@ -970,13 +970,13 @@ async function previewEmail(invoiceId){
 async function confirmSendEmail(){
   if(!_emailInvoiceId)return;
   const btn=document.getElementById('btn-confirm-send');
-  btn.disabled=true;btn.textContent='â³ Sending...';
+  btn.disabled=true;btn.textContent='&#8987; Sending...';
   try{
     const res=await fetch(`/api/invoices/${_emailInvoiceId}/send-email`,{method:'POST'});
     const data=await res.json();
-    if(data.error){toast('âŒ Error: '+data.error,'error');}
+    if(data.error){toast('&#10060;Œ Error: '+data.error,'error');}
     else{closeModal('modal-email-preview');toast('ðŸ“§ Email sent to '+data.sentTo+'!','success');loadInvoices();}
-  }catch(e){toast('âŒ Failed: '+e.message,'error');}
+  }catch(e){toast('&#10060;Œ Failed: '+e.message,'error');}
   btn.textContent='&#9989; Confirm & Send Email';btn.disabled=false;
 }
 
