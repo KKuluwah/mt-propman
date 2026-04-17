@@ -731,7 +731,7 @@ async function generateAllInvoices() {
  loadInvoices();
 }
 function openPayModal(invoiceId,amount){document.getElementById('pay-invoice-id').value=invoiceId;document.getElementById('pay-amount').value=amount;document.getElementById('pay-date').value=today;openModal('modal-pay-invoice');}
-async function recordPayment(){const id=document.getElementById('pay-invoice-id').value;const res=await fetch(`/api/invoices/pay/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_paid:document.getElementById('pay-amount').value,payment_date:document.getElementById('pay-date').value,payment_method:document.getElementById('pay-method').value,notes:document.getElementById('pay-notes').value})});const data=await res.json();closeModal('modal-pay-invoice');toast(`Payment recorded! Receipt: ${data.receipt_no}`);loadInvoices();window.open(`/api/invoices/${id}/receipt-pdf`,'_blank');}
+async function recordPayment(){const id=document.getElementById('pay-invoice-id').value;const res=await fetch(`/api/invoices/pay/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_paid:document.getElementById('pay-amount').value,payment_date:document.getElementById('pay-date').value,payment_method:document.getElementById('pay-method').value,notes:document.getElementById('pay-notes').value})});const data=await res.json();closeModal('modal-pay-invoice');toast(`Payment recorded! Receipt: ${data.receipt_no}`);loadInvoices();if(id&&id!=='null')window.open(`/api/invoices/${id}/receipt-pdf`,'_blank');}
 
 // 
 // INVOICE HTML 100% PRINT-SAFE (no bg colors)
