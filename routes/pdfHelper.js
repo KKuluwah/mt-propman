@@ -4,7 +4,9 @@ const TIN = '501247788';
 
 function fmtD(d) {
   if (!d) return '-';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-PG', { day: '2-digit', month: 'short', year: 'numeric' });
+  const s = String(d).includes('T') ? d : d + 'T00:00:00';
+  const dt = new Date(s);
+  return isNaN(dt) ? '-' : dt.toLocaleDateString('en-PG', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 // Returns a Buffer containing the PDF

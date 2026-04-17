@@ -485,7 +485,7 @@ function toast(msg, type='success') { const el=document.getElementById('toast');
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function badge(s) { return `<span class="badge badge-${s}">${s.toUpperCase()}</span>`; }
-function fmtDate(d) { if(!d) return '-'; return new Date(d+'T00:00:00').toLocaleDateString('en-PG',{day:'2-digit',month:'short',year:'numeric'}); }
+function fmtDate(d) { if(!d) return '-'; const s = String(d).includes('T') ? d : d+'T00:00:00'; const dt = new Date(s); return isNaN(dt) ? '-' : dt.toLocaleDateString('en-PG',{day:'2-digit',month:'short',year:'numeric'}); }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('show'); }
 
