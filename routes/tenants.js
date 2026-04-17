@@ -24,7 +24,7 @@ router.post('/', csrfProtect, async (req, res) => {
   const result = await db.prepare(
     'INSERT INTO tenants (name, postal_address, physical_address, phone, fax, email) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id'
   ).run([name, postal_address, physical_address, phone, fax, email || '']);
-  res.json({ id: result.rows[0]?.id, message: 'Tenant added.' });
+  res.json({ id: result.lastInsertRowid, message: 'Tenant added.' });
 });
 
 router.put('/:id', csrfProtect, async (req, res) => {
