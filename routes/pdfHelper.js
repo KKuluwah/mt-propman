@@ -24,9 +24,14 @@ export async function generateInvoicePDF(inv, s) {
     // ── Header bar ────────────────────────────────────────────────────────────
     doc.rect(50, 50, pageW, 70).fill(navy);
 
-    doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold')
-      .text('MT', 65, 68, { width: 36, align: 'center' });
-    doc.rect(65, 68, 36, 36).stroke('#c8922a');
+    try {
+      const logoPath = new URL('../public/uploads/mt-logo.jpg', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
+      doc.image(logoPath, 60, 58, { width: 50, height: 50 });
+    } catch(e) {
+      doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold')
+        .text('MT', 65, 68, { width: 36, align: 'center' });
+      doc.rect(65, 68, 36, 36).stroke('#c8922a');
+    }
 
     doc.fillColor('#ffffff').fontSize(13).font('Helvetica-Bold')
       .text(s.company_name || 'Mayemou Trading', 115, 65);
@@ -118,21 +123,30 @@ export async function generateInvoicePDF(inv, s) {
 
     // ── Bank details ──────────────────────────────────────────────────────────
     y += 16;
-    doc.rect(50, y, pageW, 70).stroke(navy);
+    doc.rect(50, y, pageW, 100).stroke(navy);
     doc.fillColor(navy).fontSize(9).font('Helvetica-Bold')
       .text('PAYMENT DETAILS - BANK SOUTH PACIFIC (BSP)', 60, y + 8);
     doc.moveTo(60, y + 20).lineTo(pageW + 40, y + 20).strokeColor('#cccccc').stroke();
 
+    // 2x2 grid layout - label on top, value below, two columns
+    const col1 = 60;
+    const col2 = Math.floor((doc.page.width - 100) / 2) + 10;
+    const row1 = y + 28;
+    const row2 = y + 60;
+
     doc.fillColor(muted).fontSize(8).font('Helvetica')
-      .text('Account Name', 60, y + 26)
-      .text('Account Number', 200, y + 26)
-      .text('Account Type', 340, y + 26)
-      .text('Branch', 450, y + 26);
-    doc.fillColor('#000000').fontSize(9).font('Helvetica-Bold')
-      .text(s.bank_account_name || '-', 60, y + 38)
-      .text(s.bank_account_number || '-', 200, y + 38)
-      .text(s.bank_account_type || '-', 340, y + 38)
-      .text(s.bank_branch || '-', 450, y + 38);
+      .text('Account Name', col1, row1)
+      .text('Account Number', col2, row1);
+    doc.fillColor('#000000').fontSize(10).font('Helvetica-Bold')
+      .text(s.bank_account_name || '-', col1, row1 + 12, { width: col2 - col1 - 10 })
+      .text(s.bank_account_number || '-', col2, row1 + 12, { width: 200 });
+
+    doc.fillColor(muted).fontSize(8).font('Helvetica')
+      .text('Account Type', col1, row2)
+      .text('Branch', col2, row2);
+    doc.fillColor('#000000').fontSize(10).font('Helvetica-Bold')
+      .text(s.bank_account_type || '-', col1, row2 + 12, { width: col2 - col1 - 10 })
+      .text(s.bank_branch || '-', col2, row2 + 12, { width: 200 });
 
     // ── Footer ────────────────────────────────────────────────────────────────
     y += 86;
@@ -159,6 +173,10 @@ export async function generateReceiptPDF(payment, inv, s) {
 
     // Header
     doc.rect(50, 50, pageW, 70).fill(navy);
+    try {
+      const logoPath = new URL('../public/uploads/mt-logo.jpg', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
+      doc.image(logoPath, 58, 58, { width: 46, height: 46 });
+    } catch(e) {}
     doc.fillColor('#ffffff').fontSize(13).font('Helvetica-Bold')
       .text(s.company_name || 'Mayemou Trading', 115, 65);
     doc.fillColor('rgba(255,255,255,0.6)').fontSize(9).font('Helvetica')
