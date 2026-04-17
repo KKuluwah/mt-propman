@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -122,18 +122,18 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  <div class="nav-section">Main</div>
  <div class="nav-item active" onclick="showTab('dashboard', this)"> Dashboard</div>
  <div class="nav-section">Manage</div>
- <div class="nav-item" onclick="showTab('properties', this)"><span class="icon">Ÿ¢</span> Properties</div>
+ <div class="nav-item" onclick="showTab('properties', this)"><span class="icon"></span> Properties</div>
  <div class="nav-item" onclick="showTab('tenants', this)"> Tenants</div>
  <div class="nav-item" onclick="showTab('leases', this)"> Leases</div>
  <div class="nav-section">Finance</div>
  <div class="nav-item" onclick="showTab('invoices', this)"> Invoices</div>
  <div class="nav-item" onclick="showTab('payments', this)"> Payments</div>
  <div class="nav-section">Operations</div>
- <div class="nav-item" id="nav-maintenance" onclick="showTab('maintenance', this)"><span class="icon">Ÿ”§</span> Maintenance</div>
- <div class="nav-item" onclick="showTab('reports', this)"><span class="icon">Ÿ“Š</span> Reports</div>
+ <div class="nav-item" id="nav-maintenance" onclick="showTab('maintenance', this)"><span class="icon"></span> Maintenance</div>
+ <div class="nav-item" onclick="showTab('reports', this)"><span class="icon"></span> Reports</div>
 
  <div class="nav-section">System</div>
- <div class="nav-item" onclick="showTab('settings', this)"><span class="icon"></span> Settings</div>
+ <div class="nav-item" onclick="showTab('settings', this)"><span class="icon"></span> Settings</div>
  </nav>
  <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:8px">
  <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%;color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)"> Logout</button>
@@ -145,7 +145,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 <div id="main">
  <div id="topbar">
  <div style="display:flex;align-items:center;gap:12px">
- <button class="btn-menu" onclick="toggleSidebar()">˜°</button>
+ <button class="btn-menu" onclick="toggleSidebar()"></button>
  <h2 id="page-title">Dashboard</h2>
  </div>
  <div class="topbar-right"><span class="topbar-date" id="today-date"></span></div>
@@ -215,7 +215,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  <!-- INVOICES -->
  <div id="tab-invoices" class="section">
  <div class="card">
- <div class="card-header"><h3>Invoices</h3><button class="btn btn-outline btn-sm" onclick="generateAllInvoices()" title="Auto-generate invoices for all active leases due this period">š¡ Generate All Due</button>
+ <div class="card-header"><h3>Invoices</h3><button class="btn btn-outline btn-sm" onclick="generateAllInvoices()" title="Auto-generate invoices for all active leases due this period"> Generate All Due</button>
  <button class="btn btn-primary btn-sm" onclick="openModal('modal-gen-invoice')">+ Manual Invoice</button></div>
  <div class="table-wrap"><table><thead><tr><th>Invoice No.</th><th>Tenant</th><th>Property / Unit</th><th>Period</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="invoices-body"></tbody></table></div>
  </div>
@@ -240,12 +240,12 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  <div class="section" id="tab-reports">
  <div class="card">
  <div class="card-header">
- <h3>Ÿ“Š Reports & Analytics</h3>
+ <h3> Reports & Analytics</h3>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
- <button class="btn btn-outline btn-sm" onclick="exportCSV('tenants')">‡ Tenants CSV</button>
- <button class="btn btn-outline btn-sm" onclick="exportCSV('properties')">‡ Properties CSV</button>
- <button class="btn btn-outline btn-sm" onclick="exportCSV('leases')">‡ Leases CSV</button>
- <button class="btn btn-outline btn-sm" onclick="exportCSV('payments')">‡ Payments CSV</button>
+ <button class="btn btn-outline btn-sm" onclick="exportCSV('tenants')"> Tenants CSV</button>
+ <button class="btn btn-outline btn-sm" onclick="exportCSV('properties')"> Properties CSV</button>
+ <button class="btn btn-outline btn-sm" onclick="exportCSV('leases')"> Leases CSV</button>
+ <button class="btn btn-outline btn-sm" onclick="exportCSV('payments')"> Payments CSV</button>
  </div>
  </div>
  <div class="card-body" style="padding:20px">
@@ -286,7 +286,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  <!-- Late Fees Card -->
  <div class="card" style="margin-top:16px">
  <div class="card-header">
- <h3>š  Late Fees</h3>
+ <h3> Late Fees</h3>
  <button class="btn btn-outline btn-sm" onclick="previewLateFees()">Preview</button>
  </div>
  <div class="card-body" style="padding:16px">
@@ -301,13 +301,13 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 
  <!-- Payment Reminders Card -->
  <div class="card" style="margin-top:16px">
- <div class="card-header"><h3>Ÿ“§ Payment Reminders</h3></div>
+ <div class="card-header"><h3> Payment Reminders</h3></div>
  <div class="card-body" style="padding:16px">
  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
  <label>Send reminders for invoices overdue by at least
  <input id="reminder-days" type="number" value="0" style="width:60px;padding:4px"> days
  </label>
- <button class="btn btn-primary btn-sm" onclick="sendReminders()">Ÿ“§ Send Reminders</button>
+ <button class="btn btn-primary btn-sm" onclick="sendReminders()"> Send Reminders</button>
  </div>
  </div>
  </div>
@@ -321,12 +321,12 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  <div class="card"><div class="card-header"><h3>Bank Account Details</h3></div><div id="bank-form"></div></div>
  </div>
  <div class="card">
- <div class="card-header"><h3>Ÿ“§ Email Settings (Gmail)</h3></div>
+ <div class="card-header"><h3> Email Settings (Gmail)</h3></div>
  <div style="background:var(--info-bg);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--info)">
  <strong>How to set up Gmail sending:</strong><br>
  1. Use your Gmail address below.<br>
  2. For the password, use a <strong>Gmail App Password</strong> (not your normal Gmail password).<br>
- 3. Go to <strong>myaccount.google.com †’ Security †’ 2-Step Verification †’ App Passwords</strong> and generate one.<br>
+ 3. Go to <strong>myaccount.google.com Security 2-Step Verification App Passwords</strong> and generate one.<br>
  4. Paste the 16-character app password below.
  </div>
  <div id="gmail-form"></div>
@@ -337,11 +337,11 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 </div>
 <div id="toast"></div>
 
-<!-- ••• MODALS ••• -->
+<!-- MODALS -->
 
 <div class="modal-overlay" id="modal-add-property">
  <div class="modal">
- <div class="modal-header"><h3>Add Property</h3><button class="modal-close" onclick="closeModal('modal-add-property')">œ•</button></div>
+ <div class="modal-header"><h3>Add Property</h3><button class="modal-close" onclick="closeModal('modal-add-property')"></button></div>
  <div class="modal-body">
  <div class="form-group"><label>Property Name *</label><input id="p-name" placeholder="e.g. MT House 4"></div>
  <div class="form-group"><label>Address</label><input id="p-addr" placeholder="Full address"></div>
@@ -354,7 +354,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 
 <div class="modal-overlay" id="modal-add-tenant">
  <div class="modal">
- <div class="modal-header"><h3>Add Tenant</h3><button class="modal-close" onclick="closeModal('modal-add-tenant')">œ•</button></div>
+ <div class="modal-header"><h3>Add Tenant</h3><button class="modal-close" onclick="closeModal('modal-add-tenant')"></button></div>
  <div class="modal-body">
  <div class="form-group"><label>Full Name *</label><input id="t-name" placeholder="Full legal name"></div>
  <div class="form-row"><div class="form-group"><label>Phone</label><input id="t-phone"></div><div class="form-group"><label>Fax</label><input id="t-fax"></div></div>
@@ -368,7 +368,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 
 <div class="modal-overlay" id="modal-add-lease">
  <div class="modal">
- <div class="modal-header"><h3>Create Lease Agreement</h3><button class="modal-close" onclick="closeModal('modal-add-lease')">œ•</button></div>
+ <div class="modal-header"><h3>Create Lease Agreement</h3><button class="modal-close" onclick="closeModal('modal-add-lease')"></button></div>
  <div class="modal-body">
  <div class="form-group"><label>Property *</label><select id="l-property" onchange="loadUnitsForLease()"><option value="">Select property...</option></select></div>
  <div class="form-group"><label>Unit / Room</label><select id="l-unit"><option value="">No specific unit</option></select></div>
@@ -386,7 +386,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 
 <div class="modal-overlay" id="modal-gen-invoice">
  <div class="modal">
- <div class="modal-header"><h3>Generate Invoice</h3><button class="modal-close" onclick="closeModal('modal-gen-invoice')">œ•</button></div>
+ <div class="modal-header"><h3>Generate Invoice</h3><button class="modal-close" onclick="closeModal('modal-gen-invoice')"></button></div>
  <div class="modal-body">
  <div class="form-group"><label>Lease *</label><select id="i-lease" onchange="fillInvoiceAmount()"><option value="">Select lease...</option></select></div>
  <div class="form-group"><label>Amount Due (K)</label><input id="i-amount" type="number"></div>
@@ -399,7 +399,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 
 <div class="modal-overlay" id="modal-pay-invoice">
  <div class="modal">
- <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="closeModal('modal-pay-invoice')">œ•</button></div>
+ <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="closeModal('modal-pay-invoice')"></button></div>
  <div class="modal-body">
  <input type="hidden" id="pay-invoice-id">
  <div class="form-group"><label>Amount Paid (K)</label><input id="pay-amount" type="number"></div>
@@ -413,7 +413,7 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 
 <div class="modal-overlay" id="modal-add-maintenance">
  <div class="modal">
- <div class="modal-header"><h3>Log Maintenance Request</h3><button class="modal-close" onclick="closeModal('modal-add-maintenance')">œ•</button></div>
+ <div class="modal-header"><h3>Log Maintenance Request</h3><button class="modal-close" onclick="closeModal('modal-add-maintenance')"></button></div>
  <div class="modal-body">
  <div class="form-group"><label>Property *</label><select id="m-property" onchange="loadUnitsForMaint()"><option value="">Select property...</option></select></div>
  <div class="form-group"><label>Unit / Room (optional)</label><select id="m-unit"><option value="">All / Common area</option></select></div>
@@ -425,15 +425,15 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
  </div>
 </div>
 
-<!-- ˜… PRINT / DOWNLOAD PDF MODAL ˜… -->
+<!-- PRINT / DOWNLOAD PDF MODAL -->
 <div class="modal-overlay" id="modal-print-invoice">
  <div class="modal" style="width:680px">
- <div class="modal-header"><h3>Invoice Preview</h3><button class="modal-close" onclick="closeModal('modal-print-invoice')">œ•</button></div>
+ <div class="modal-header"><h3>Invoice Preview</h3><button class="modal-close" onclick="closeModal('modal-print-invoice')"></button></div>
  <div class="modal-body" id="invoice-print-content"></div>
  <div class="modal-footer">
  <button class="btn btn-outline" onclick="closeModal('modal-print-invoice')">Close</button>
- <button class="btn btn-accent" onclick="downloadInvoicePDF()">‡ Download PDF</button>
- <button class="btn btn-primary" onclick="window.print()">Ÿ–¨ Print</button>
+ <button class="btn btn-accent" onclick="downloadInvoicePDF()"> Download PDF</button>
+ <button class="btn btn-primary" onclick="window.print()"> Print</button>
  </div>
  </div>
 </div>
@@ -441,24 +441,24 @@ tbody tr:last-child td { border-bottom: none; } tbody tr:hover td { background: 
 <!-- EMAIL PREVIEW MODAL -->
 <div class="modal-overlay" id="modal-email-preview">
  <div class="modal" style="width:700px;max-width:97vw">
- <div class="modal-header"><h3>Ÿ“§ Email Preview €” Confirm Before Sending</h3><button class="modal-close" onclick="closeModal('modal-email-preview')">œ•</button></div>
+ <div class="modal-header"><h3> Email Preview Confirm Before Sending</h3><button class="modal-close" onclick="closeModal('modal-email-preview')"></button></div>
  <div class="modal-body" style="padding:0">
  <div id="email-preview-bar" style="padding:14px 24px;background:#e8f0fb;border-bottom:1px solid #dde3ed;font-size:13px;color:#1a4a8a;line-height:1.8">
- <div><strong>To:</strong> <span id="email-to-addr" style="font-family:monospace">€”</span></div>
- <div><strong>Subject:</strong> <span id="email-subject-preview">€”</span></div>
+ <div><strong>To:</strong> <span id="email-to-addr" style="font-family:monospace"></span></div>
+ <div><strong>Subject:</strong> <span id="email-subject-preview"></span></div>
  </div>
  <div style="padding:16px 24px 0">
  <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Live Email Preview</div>
  <iframe id="email-iframe" style="width:100%;height:440px;border:1px solid #dde3ed;border-radius:8px;background:#f4f7fb" srcdoc="<p style='font-family:Arial;padding:20px;color:#888'>Loading preview...</p>"></iframe>
  </div>
  <div style="margin:14px 24px 0;padding:12px 16px;background:#fff3dc;border-radius:8px;font-size:13px;color:#8a5000;border:1px solid #f0d090">
- š  <strong>Review carefully before confirming.</strong> The tenant will receive this email the moment you click Send.
+ <strong>Review carefully before confirming.</strong> The tenant will receive this email the moment you click Send.
  </div>
  <div style="height:14px"></div>
  </div>
  <div class="modal-footer" style="flex-wrap:wrap;gap:10px">
- <button class="btn btn-outline" onclick="closeModal('modal-email-preview')">œ• Cancel €” Don't Send</button>
- <span id="email-no-addr-warn" style="display:none;font-size:13px;color:var(--danger);align-self:center;flex:1">š  No email address on file for this tenant.</span>
+ <button class="btn btn-outline" onclick="closeModal('modal-email-preview')"> Cancel Don't Send</button>
+ <span id="email-no-addr-warn" style="display:none;font-size:13px;color:var(--danger);align-self:center;flex:1"> No email address on file for this tenant.</span>
  <button id="btn-confirm-send" class="btn btn-success" onclick="confirmSendEmail()"> Confirm &amp; Send Email</button>
  </div>
  </div>
@@ -509,7 +509,7 @@ async function loadDashboard() {
 
 async function loadProperties() {
  _properties = await fetch('/api/properties').then(r => r.json());
- const icons = { house: '', boarding: 'Ÿ¢', commercial: 'Ÿ—' };
+ const icons = { house: '', boarding: '', commercial: '' };
  const c = document.getElementById('prop-cards');
  if (!_properties.length) {
  c.innerHTML = '<div class="empty"><div class="empty-icon"></div><p>No properties yet. Click + Add Property to get started.</p></div>';
@@ -542,7 +542,7 @@ async function loadProperties() {
  <span class="unit-rent">K${u.rent_monthly}/mo</span>
  <span>${badge(u.status)}</span>
  <span class="unit-actions">
- <button class="btn btn-outline btn-xs" onclick="openEditUnit(${u.id},'${u.unit_name}',${u.rent_monthly},${u.rent_fortnightly})">œ</button>
+ <button class="btn btn-outline btn-xs" onclick="openEditUnit(${u.id},'${u.unit_name}',${u.rent_monthly},${u.rent_fortnightly})"></button>
  ${u.status === 'vacant'
  ? `<button class="btn btn-success btn-xs" onclick="setUnitStatus(${u.id},'occupied')">Set Occupied</button>`
  : `<button class="btn btn-outline btn-xs" onclick="setUnitStatus(${u.id},'vacant')">Set Vacant</button>`}
@@ -560,8 +560,8 @@ async function loadProperties() {
  ${total > 0 ? `<div class="units-section">${uHtml}</div>` : ''}
  </div>
  <div class="prop-card-footer">
- <button class="btn btn-accent btn-sm" onclick="openEditProperty(${p.id})">œ Edit</button>
- <button class="btn btn-outline btn-sm" onclick="deleteProperty(${p.id})">Ÿ—‘ Delete</button>
+ <button class="btn btn-accent btn-sm" onclick="openEditProperty(${p.id})"> Edit</button>
+ <button class="btn btn-outline btn-sm" onclick="deleteProperty(${p.id})"> Delete</button>
  </div>
  </div>`;
  }).join('');
@@ -642,7 +642,7 @@ async function loadTenants(){
  _tenants=await fetch('/api/tenants').then(r=>r.json());
  const body=document.getElementById('tenants-body');
  if(!_tenants.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon"></div><p>No tenants yet.</p></div></td></tr>';return;}
- body.innerHTML=_tenants.map((t,i)=>`<tr><td>${i+1}</td><td><strong>${t.name}</strong></td><td>${t.phone||'-'}</td><td>${t.email||'-'}</td><td>${t.lease?`${t.lease.property_name}${t.lease.unit_name?' / '+t.lease.unit_name:''}`:'<span class="badge badge-vacant">No lease</span>'}</td><td>${t.lease?`<span class="badge badge-monthly">${t.lease.ref_no}</span>`:'-'}</td><td><button class="btn btn-outline btn-sm" onclick="openEditTenant(${t.id})">œ Edit</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">Delete</button></td></tr>`).join('');
+ body.innerHTML=_tenants.map((t,i)=>`<tr><td>${i+1}</td><td><strong>${t.name}</strong></td><td>${t.phone||'-'}</td><td>${t.email||'-'}</td><td>${t.lease?`${t.lease.property_name}${t.lease.unit_name?' / '+t.lease.unit_name:''}`:'<span class="badge badge-vacant">No lease</span>'}</td><td>${t.lease?`<span class="badge badge-monthly">${t.lease.ref_no}</span>`:'-'}</td><td><button class="btn btn-outline btn-sm" onclick="openEditTenant(${t.id})"> Edit</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">Delete</button></td></tr>`).join('');
 }
 async function addTenant(){const name=document.getElementById('t-name').value.trim();if(!name){toast('Name required.','error');return;}await fetch('/api/tenants',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone:document.getElementById('t-phone').value,fax:document.getElementById('t-fax').value,email:document.getElementById('t-email').value,postal_address:document.getElementById('t-postal').value,physical_address:document.getElementById('t-physical').value})});closeModal('modal-add-tenant');toast('Tenant added!');loadTenants();}
 async function deleteTenant(id){if(!confirm('Delete tenant?'))return;await fetch(`/api/tenants/${id}`,{method:'DELETE'});toast('Deleted.');loadTenants();}
@@ -684,10 +684,10 @@ async function loadLeases(){
  _leases=leases;_properties=props;_tenants=tenants;
  document.getElementById('l-property').innerHTML='<option value="">Select property...</option>'+props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
  document.getElementById('l-tenant').innerHTML='<option value="">Select tenant...</option>'+tenants.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
- const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} €” ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
+ const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
  const body=document.getElementById('leases-body');
  if(!leases.length){body.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon"></div><p>No leases yet.</p></div></td></tr>';return;}
- body.innerHTML=leases.map(l=>`<tr><td><strong>${l.ref_no}</strong></td><td>${l.tenant_name}</td><td>${l.property_name}${l.unit_name?' / '+l.unit_name:''}</td><td>K${Number(l.rent_amount).toLocaleString()}</td><td>${badge(l.payment_frequency)}</td><td>${fmtDate(l.start_date)}</td><td>${fmtDate(l.end_date)}</td><td>${badge(l.status)}</td><td style="white-space:nowrap">${l.status==='active'?`<button class="btn btn-outline btn-sm" onclick="openEditLease(${l.id})">œ Edit</button> <button class="btn btn-danger btn-sm" onclick="terminateLease(${l.id})">Terminate</button>`:'-'}</td></tr>`).join('');
+ body.innerHTML=leases.map(l=>`<tr><td><strong>${l.ref_no}</strong></td><td>${l.tenant_name}</td><td>${l.property_name}${l.unit_name?' / '+l.unit_name:''}</td><td>K${Number(l.rent_amount).toLocaleString()}</td><td>${badge(l.payment_frequency)}</td><td>${fmtDate(l.start_date)}</td><td>${fmtDate(l.end_date)}</td><td>${badge(l.status)}</td><td style="white-space:nowrap">${l.status==='active'?`<button class="btn btn-outline btn-sm" onclick="openEditLease(${l.id})"> Edit</button> <button class="btn btn-danger btn-sm" onclick="terminateLease(${l.id})">Terminate</button>`:'-'}</td></tr>`).join('');
 }
 async function loadUnitsForLease(){const pid=document.getElementById('l-property').value;const sel=document.getElementById('l-unit');sel.innerHTML='<option value="">No specific unit</option>';if(!pid)return;const prop=_properties.find(p=>p.id==pid);if(prop&&prop.units)prop.units.forEach(u=>{sel.innerHTML+=`<option value="${u.id}" data-monthly="${u.rent_monthly}" data-fortnight="${u.rent_fortnightly}">${u.unit_name}</option>`;});updateLeaseRent();}
 function updateLeaseRent(){const freq=document.getElementById('l-freq').value;const opt=document.getElementById('l-unit').options[document.getElementById('l-unit').selectedIndex];if(opt&&opt.dataset.monthly)document.getElementById('l-rent').value=freq==='monthly'?opt.dataset.monthly:opt.dataset.fortnight;}
@@ -699,14 +699,14 @@ function fillInvoiceAmount(){const sel=document.getElementById('i-lease');const 
 async function loadInvoices(){
  _invoices=await fetch('/api/invoices').then(r=>r.json());
  const leases=await fetch('/api/leases').then(r=>r.json());
- const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} €” ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
+ const il=document.getElementById('i-lease');if(il)il.innerHTML='<option value="">Select lease...</option>'+leases.filter(l=>l.status==='active').map(l=>`<option value="${l.id}" data-rent="${l.rent_amount}">${l.ref_no} ${l.tenant_name} @ ${l.property_name}${l.unit_name?' / '+l.unit_name:''}</option>`).join('');
  const body=document.getElementById('invoices-body');
  if(!_invoices.length){body.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"></div><p>No invoices yet.</p></div></td></tr>';return;}
  body.innerHTML=_invoices.map(i=>{
  const overdue=i.status==='unpaid'&&i.due_date<today;
  const sb=overdue?'<span class="badge badge-overdue">OVERDUE</span>':badge(i.status);
- const eb=i.email_sent?'<span style="font-size:11px;color:var(--success);margin-left:4px">œ‰ Sent</span>':'';
- return `<tr><td><strong>${i.invoice_no}</strong></td><td>${i.tenant_name}</td><td>${i.property_name}${i.unit_name?' / '+i.unit_name:''}</td><td>${fmtDate(i.period_start)} €“ ${fmtDate(i.period_end)}</td><td>K${Number(i.amount_due).toLocaleString()}</td><td>${fmtDate(i.due_date)}</td><td>${sb}${eb}</td><td style="white-space:nowrap">${i.status==='unpaid'?`<button class="btn btn-success btn-sm" onclick="openPayModal(${i.id},${i.amount_due})">Pay</button>`:''} <button class="btn btn-outline btn-sm" onclick="printInvoice(${i.id})" title="View / Print / Download">Ÿ–¨</button> <button class="btn btn-outline btn-sm" onclick="previewEmail(${i.id})" title="Email invoice">Ÿ“§</button></td></tr>`;
+ const eb=i.email_sent?'<span style="font-size:11px;color:var(--success);margin-left:4px"> Sent</span>':'';
+ return `<tr><td><strong>${i.invoice_no}</strong></td><td>${i.tenant_name}</td><td>${i.property_name}${i.unit_name?' / '+i.unit_name:''}</td><td>${fmtDate(i.period_start)} ${fmtDate(i.period_end)}</td><td>K${Number(i.amount_due).toLocaleString()}</td><td>${fmtDate(i.due_date)}</td><td>${sb}${eb}</td><td style="white-space:nowrap">${i.status==='unpaid'?`<button class="btn btn-success btn-sm" onclick="openPayModal(${i.id},${i.amount_due})">Pay</button>`:''} <button class="btn btn-outline btn-sm" onclick="printInvoice(${i.id})" title="View / Print / Download"></button> <button class="btn btn-outline btn-sm" onclick="previewEmail(${i.id})" title="Email invoice"></button></td></tr>`;
  }).join('');
 }
 async function generateInvoice(){const lid=document.getElementById('i-lease').value;if(!lid){toast('Please select a lease.','error');return;}const res=await fetch('/api/invoices/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lease_id:lid,period_start:document.getElementById('i-start').value,period_end:document.getElementById('i-end').value,due_date:document.getElementById('i-due').value,amount_due:document.getElementById('i-amount').value})});const data=await res.json();closeModal('modal-gen-invoice');toast(`Invoice ${data.invoice_no} generated!`);loadInvoices();}
@@ -721,9 +721,9 @@ async function generateAllInvoices() {
 function openPayModal(invoiceId,amount){document.getElementById('pay-invoice-id').value=invoiceId;document.getElementById('pay-amount').value=amount;document.getElementById('pay-date').value=today;openModal('modal-pay-invoice');}
 async function recordPayment(){const id=document.getElementById('pay-invoice-id').value;const res=await fetch(`/api/invoices/pay/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_paid:document.getElementById('pay-amount').value,payment_date:document.getElementById('pay-date').value,payment_method:document.getElementById('pay-method').value,notes:document.getElementById('pay-notes').value})});const data=await res.json();closeModal('modal-pay-invoice');toast(`Payment recorded! Receipt: ${data.receipt_no}`);loadInvoices();}
 
-// ••••••••••••••••••••••••••••••••••••••••••••••
-// INVOICE HTML €” 100% PRINT-SAFE (no bg colors)
-// ••••••••••••••••••••••••••••••••••••••••••••••
+// 
+// INVOICE HTML 100% PRINT-SAFE (no bg colors)
+// 
 function buildInvoiceHTML(inv) {
  const s = inv.settings;
  return `<div style="font-family:'Source Sans 3',Arial,sans-serif;padding:10px;color:#111">
@@ -755,7 +755,7 @@ function buildInvoiceHTML(inv) {
  </div>
  <div style="border:1.5px solid #c0cad8;border-radius:8px;padding:14px">
  <div style="font-size:10px;font-weight:800;color:#0d2137;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;border-bottom:1px solid #dde3ed;padding-bottom:6px">Property</div>
- <div style="font-weight:700;font-size:14px;color:#0d2137">${inv.property_name}${inv.unit_name?' €” '+inv.unit_name:''}</div>
+ <div style="font-weight:700;font-size:14px;color:#0d2137">${inv.property_name}${inv.unit_name?' '+inv.unit_name:''}</div>
  <div style="font-size:12px;color:#333;margin-top:4px">${inv.property_address||''}</div>
  <div style="font-size:11px;color:#555;margin-top:4px">Lease Ref: <strong>${inv.lease_ref}</strong></div>
  </div>
@@ -772,7 +772,7 @@ function buildInvoiceHTML(inv) {
  <tbody>
  <tr>
  <td style="padding:12px 14px;border-bottom:1px solid #ddd;color:#111">
- <strong>Rental €” ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''}</strong><br>
+ <strong>Rental ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''}</strong><br>
  <span style="font-size:12px;color:#444">Period: ${fmtDate(inv.period_start)} to ${fmtDate(inv.period_end)} (${inv.payment_frequency})</span>
  </td>
  <td style="padding:12px 14px;text-align:right;font-weight:800;font-size:16px;color:#0d2137">K${Number(inv.amount_due).toLocaleString()}</td>
@@ -781,7 +781,7 @@ function buildInvoiceHTML(inv) {
  <tr>
  <td style="padding:12px 14px;border-bottom:1px solid #ddd;color:#111">
  <strong>Security Bond</strong>
- <span style="border:1px solid #c8922a;color:#c8922a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">ONE-TIME · REFUNDABLE</span>
+ <span style="border:1px solid #c8922a;color:#c8922a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">ONE-TIME REFUNDABLE</span>
  </td>
  <td style="padding:12px 14px;text-align:right;font-weight:800;font-size:16px;color:#0d2137">K${Number(inv.bond_amount).toLocaleString()}</td>
  </tr>`:''}
@@ -798,10 +798,10 @@ function buildInvoiceHTML(inv) {
  </tfoot>
  </table>
 
- <!-- BANK DETAILS €” PRINT SAFE: dark border, dark text, NO background color -->
+ <!-- BANK DETAILS PRINT SAFE: dark border, dark text, NO background color -->
  <div style="border:2px solid #0d2137;border-radius:8px;padding:16px;margin-bottom:16px">
  <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#0d2137;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #c0cad8">
- Payment Details €” Bank South Pacific (BSP)
+ Payment Details Bank South Pacific (BSP)
  </div>
  <table style="width:100%;border-collapse:collapse;font-size:13px">
  <tr>
@@ -834,7 +834,7 @@ async function printInvoice(id) {
  openModal('modal-print-invoice');
 }
 
-// ˜… PDF DOWNLOAD €” opens new tab, forces background graphics ON via -webkit-print-color-adjust ˜…
+// PDF DOWNLOAD opens new tab, forces background graphics ON via -webkit-print-color-adjust 
 function downloadInvoicePDF() {
  const content=document.getElementById('invoice-print-content').innerHTML;
  const filename=_currentInvoiceNo||'Invoice';
@@ -868,13 +868,13 @@ async function loadPayments(){
 async function loadMaintenance(){
  const data=await fetch('/api/maintenance').then(r=>r.json());
  const open=data.filter(m=>m.status==='open').length;
- document.getElementById('nav-maintenance').innerHTML=`<span class="icon">Ÿ”§</span> Maintenance${open>0?` <span class="badge-count">${open}</span>`:''}`;
+ document.getElementById('nav-maintenance').innerHTML=`<span class="icon"></span> Maintenance${open>0?` <span class="badge-count">${open}</span>`:''}`;
  const props=_properties.length?_properties:await fetch('/api/properties').then(r=>r.json());_properties=props;
  document.getElementById('m-property').innerHTML='<option value="">Select property...</option>'+props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
  document.getElementById('m-date').value=today;
  const body=document.getElementById('maintenance-body');
  if(!data.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon"></div><p>No maintenance requests.</p></div></td></tr>';return;}
- body.innerHTML=data.map(m=>`<tr><td><strong>${m.title}</strong><br><small style="color:var(--muted)">${m.description||''}</small></td><td>${m.property_name}${m.unit_name?' / '+m.unit_name:''}</td><td>${badge(''+m.priority)}</td><td>${fmtDate(m.reported_date)}</td><td>${badge(m.status)}</td><td>${m.resolved_date?fmtDate(m.resolved_date):'-'}</td><td style="white-space:nowrap">${m.status==='open'?`<button class="btn btn-success btn-sm" onclick="resolveMaint(${m.id})">œ“ Resolve</button>`:''} <button class="btn btn-danger btn-sm" onclick="deleteMaint(${m.id})">Delete</button></td></tr>`).join('');
+ body.innerHTML=data.map(m=>`<tr><td><strong>${m.title}</strong><br><small style="color:var(--muted)">${m.description||''}</small></td><td>${m.property_name}${m.unit_name?' / '+m.unit_name:''}</td><td>${badge(''+m.priority)}</td><td>${fmtDate(m.reported_date)}</td><td>${badge(m.status)}</td><td>${m.resolved_date?fmtDate(m.resolved_date):'-'}</td><td style="white-space:nowrap">${m.status==='open'?`<button class="btn btn-success btn-sm" onclick="resolveMaint(${m.id})"> Resolve</button>`:''} <button class="btn btn-danger btn-sm" onclick="deleteMaint(${m.id})">Delete</button></td></tr>`).join('');
 }
 async function loadUnitsForMaint(){const pid=document.getElementById('m-property').value;const sel=document.getElementById('m-unit');sel.innerHTML='<option value="">All / Common area</option>';if(!pid)return;const prop=_properties.find(p=>p.id==pid);if(prop&&prop.units)prop.units.forEach(u=>{sel.innerHTML+=`<option value="${u.id}">${u.unit_name}</option>`;});}
 async function addMaintenance(){const pid=document.getElementById('m-property').value,title=document.getElementById('m-title').value.trim();if(!pid||!title){toast('Property and title required.','error');return;}await fetch('/api/maintenance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property_id:pid,unit_id:document.getElementById('m-unit').value||null,title,description:document.getElementById('m-desc').value,priority:document.getElementById('m-priority').value,reported_date:document.getElementById('m-date').value})});closeModal('modal-add-maintenance');toast('Logged!');loadMaintenance();}
@@ -911,7 +911,7 @@ async function saveSettings(){
  toast('Settings saved!');
 }
 
-// ”€”€ EMAIL ”€”€
+// EMAIL 
 let _emailInvoiceId=null;
 async function previewEmail(invoiceId){
  _emailInvoiceId=invoiceId;
@@ -921,8 +921,8 @@ async function previewEmail(invoiceId){
  const hasEmail=inv.tenant_email&&inv.tenant_email.trim()!=='';
  const fmtD=(d)=>d?new Date(d+'T00:00:00').toLocaleDateString('en-PG',{day:'2-digit',month:'short',year:'numeric'}):'-';
  const totalDue=Number(inv.amount_due)+Number(inv.bond_amount||0);
- document.getElementById('email-to-addr').textContent=hasEmail?inv.tenant_email:'š  No email on file';
- document.getElementById('email-subject-preview').textContent=`Invoice ${inv.invoice_no} €” ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''} €” Due ${fmtD(inv.due_date)}`;
+ document.getElementById('email-to-addr').textContent=hasEmail?inv.tenant_email:' No email on file';
+ document.getElementById('email-subject-preview').textContent=`Invoice ${inv.invoice_no} ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''} Due ${fmtD(inv.due_date)}`;
  const btn=document.getElementById('btn-confirm-send'),warn=document.getElementById('email-no-addr-warn');
  if(!hasEmail){btn.disabled=true;btn.style.opacity='0.4';warn.style.display='inline';}
  else{btn.disabled=false;btn.style.opacity='1';warn.style.display='none';}
@@ -935,23 +935,23 @@ async function previewEmail(invoiceId){
  </div>
  <div style="padding:22px 26px">
  <p style="font-size:14px;margin:0 0 14px">Dear <strong>${inv.tenant_name}</strong>,</p>
- <p style="color:#555;font-size:13px;margin:0 0 18px">Please find your invoice for <strong>${inv.property_name}${inv.unit_name?' €” '+inv.unit_name:''}</strong>. Kindly arrange payment by the due date below.</p>
+ <p style="color:#555;font-size:13px;margin:0 0 18px">Please find your invoice for <strong>${inv.property_name}${inv.unit_name?' '+inv.unit_name:''}</strong>. Kindly arrange payment by the due date below.</p>
  <div style="background:#f4f7fb;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px">
  <table style="width:100%;border-collapse:collapse">
  <tr><td style="color:#888;padding:3px 0">Invoice No.</td><td style="font-weight:600;text-align:right">${inv.invoice_no}</td></tr>
  <tr><td style="color:#888;padding:3px 0">Lease Ref.</td><td style="font-weight:600;text-align:right">${inv.lease_ref}</td></tr>
- <tr><td style="color:#888;padding:3px 0">Period</td><td style="font-weight:600;text-align:right">${fmtD(inv.period_start)} €“ ${fmtD(inv.period_end)}</td></tr>
+ <tr><td style="color:#888;padding:3px 0">Period</td><td style="font-weight:600;text-align:right">${fmtD(inv.period_start)} ${fmtD(inv.period_end)}</td></tr>
  <tr><td style="color:#b22a2a;font-weight:700;padding-top:8px">Due Date</td><td style="color:#b22a2a;font-weight:700;text-align:right;padding-top:8px">${fmtD(inv.due_date)}</td></tr>
  </table>
  </div>
  <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
  <tr style="background:#0d2137"><th style="padding:8px 12px;text-align:left;color:#fff;font-size:12px">Description</th><th style="padding:8px 12px;text-align:right;color:#fff;font-size:12px">Amount</th></tr>
- <tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Rental €” ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''}</td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.amount_due).toLocaleString()}</td></tr>
- ${Number(inv.bond_amount)>0?`<tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Security Bond <span style="background:#fff3dc;color:#8a5000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px">ONE-TIME · REFUNDABLE</span></td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.bond_amount).toLocaleString()}</td></tr>`:''}
+ <tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Rental ${inv.property_name}${inv.unit_name?' / '+inv.unit_name:''}</td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.amount_due).toLocaleString()}</td></tr>
+ ${Number(inv.bond_amount)>0?`<tr><td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px">Security Bond <span style="background:#fff3dc;color:#8a5000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px">ONE-TIME REFUNDABLE</span></td><td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.bond_amount).toLocaleString()}</td></tr>`:''}
  <tr style="background:#f4f7fb"><td style="padding:10px 12px;font-weight:700">TOTAL DUE</td><td style="padding:10px 12px;text-align:right;font-size:18px;font-weight:700;color:#0d2137">K${totalDue.toLocaleString()}</td></tr>
  </table>
  <div style="background:#0d2137;color:#fff;border-radius:8px;padding:14px 18px;margin-bottom:14px">
- <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:10px">Payment Details €” BSP</div>
+ <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:10px">Payment Details BSP</div>
  <table style="width:100%;font-size:12px;border-collapse:collapse">
  <tr><td style="color:rgba(255,255,255,0.6);width:50%">Account Name</td><td style="color:rgba(255,255,255,0.6)">Account Number</td></tr>
  <tr><td style="font-weight:700;padding-bottom:6px">${s.bank_account_name||'-'}</td><td style="font-weight:700;padding-bottom:6px">${s.bank_account_number||'-'}</td></tr>
@@ -974,9 +974,9 @@ async function confirmSendEmail(){
  try{
  const res=await fetch(`/api/invoices/${_emailInvoiceId}/send-email`,{method:'POST'});
  const data=await res.json();
- if(data.error){toast('Œ Error: '+data.error,'error');}
- else{closeModal('modal-email-preview');toast('Ÿ“§ Email sent to '+data.sentTo+'!','success');loadInvoices();}
- }catch(e){toast('Œ Failed: '+e.message,'error');}
+ if(data.error){toast(' Error: '+data.error,'error');}
+ else{closeModal('modal-email-preview');toast(' Email sent to '+data.sentTo+'!','success');loadInvoices();}
+ }catch(e){toast(' Failed: '+e.message,'error');}
  btn.textContent=' Confirm & Send Email';btn.disabled=false;
 }
 
@@ -1021,7 +1021,7 @@ async function openAddPaymentModal() {
  const invoices = await fetch('/api/invoices').then(r => r.json());
  const unpaid = invoices.filter(i => i.status === 'unpaid');
  document.getElementById('ap-invoice').innerHTML = unpaid.length
- ? unpaid.map(i => `<option value="${i.id}" data-amount="${i.amount_due}">${i.invoice_no} €” ${i.tenant_name} (K${Number(i.amount_due).toLocaleString()})</option>`).join('')
+ ? unpaid.map(i => `<option value="${i.id}" data-amount="${i.amount_due}">${i.invoice_no} ${i.tenant_name} (K${Number(i.amount_due).toLocaleString()})</option>`).join('')
  : '<option value="">No unpaid invoices</option>';
  document.getElementById('ap-date').value = today;
  document.getElementById('ap-amount').value = unpaid.length ? unpaid[0].amount_due : '';
@@ -1050,7 +1050,7 @@ async function recordAddPayment() {
  loadPayments();
 }
 
-// ”€”€ Reports ”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+// Reports 
 async function loadReports() {
  const [rev, occ, pnl, maint, util] = await Promise.all([
  fetch('/api/reports/revenue').then(r => r.json()),
@@ -1160,7 +1160,7 @@ async function sendReminders() {
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ days_overdue: Number(days) })
  }).then(r => r.json());
- toast(`Ÿ“§ Sent ${data.sent} reminder(s).`);
+ toast(` Sent ${data.sent} reminder(s).`);
 }
 
 function exportCSV(type) {
@@ -1233,7 +1233,7 @@ window.addEventListener('load', async () => {
 <!-- EDIT LEASE MODAL -->
 <div class="modal-overlay" id="modal-edit-lease">
  <div class="modal">
- <div class="modal-header"><h3>Edit Lease</h3><button class="modal-close" onclick="closeModal('modal-edit-lease')">œ•</button></div>
+ <div class="modal-header"><h3>Edit Lease</h3><button class="modal-close" onclick="closeModal('modal-edit-lease')"></button></div>
  <div class="modal-body">
  <input type="hidden" id="el-id">
  <div class="form-row">
@@ -1259,7 +1259,7 @@ window.addEventListener('load', async () => {
 <!-- ADD PAYMENT MODAL (standalone) -->
 <div class="modal-overlay" id="modal-add-payment">
  <div class="modal">
- <div class="modal-header"><h3>Add Payment</h3><button class="modal-close" onclick="closeModal('modal-add-payment')">œ•</button></div>
+ <div class="modal-header"><h3>Add Payment</h3><button class="modal-close" onclick="closeModal('modal-add-payment')"></button></div>
  <div class="modal-body">
  <div class="form-group"><label>Select Invoice *</label><select id="ap-invoice"></select></div>
  <div class="form-group"><label>Amount Paid (K)</label><input id="ap-amount" type="number"></div>
@@ -1279,7 +1279,7 @@ window.addEventListener('load', async () => {
  <div class="modal">
  <div class="modal-header">
  <h3>Edit Property</h3>
- <button class="modal-close" onclick="closeModal('modal-edit-property')">œ•</button>
+ <button class="modal-close" onclick="closeModal('modal-edit-property')"></button>
  </div>
  <div class="modal-body">
  <input type="hidden" id="ep-id">
@@ -1314,7 +1314,7 @@ window.addEventListener('load', async () => {
  <div class="modal" style="max-width:400px">
  <div class="modal-header">
  <h3>Edit Unit / Room</h3>
- <button class="modal-close" onclick="closeModal('modal-edit-unit')">œ•</button>
+ <button class="modal-close" onclick="closeModal('modal-edit-unit')"></button>
  </div>
  <div class="modal-body">
  <input type="hidden" id="eu-id">
@@ -1334,7 +1334,7 @@ window.addEventListener('load', async () => {
  <div class="modal">
  <div class="modal-header">
  <h3>Edit Tenant</h3>
- <button class="modal-close" onclick="closeModal('modal-edit-tenant')">œ•</button>
+ <button class="modal-close" onclick="closeModal('modal-edit-tenant')"></button>
  </div>
  <div class="modal-body">
  <input type="hidden" id="et-id">
