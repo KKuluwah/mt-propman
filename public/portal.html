@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MT-PropMan Tenant Portal</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f7fb; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+  .card { background:#fff; border-radius:14px; box-shadow:0 18px 60px rgba(16,24,40,0.08); width:100%; max-width:420px; padding:28px; }
+  h1 { margin-bottom:10px; font-size:22px; color:#0d2137; }
+  p { margin-bottom:18px; color:#52606d; line-height:1.6; }
+  label { display:block; margin-bottom:6px; font-size:13px; color:#344054; }
+  input { width:100%; padding:12px 14px; border:1px solid #d0d5dd; border-radius:10px; margin-bottom:16px; font-size:14px; }
+  button { width:100%; padding:13px 16px; border:none; border-radius:10px; background:#0d2137; color:#fff; font-size:15px; cursor:pointer; }
+  button:hover { opacity:0.95; }
+  .link { display:inline-block; margin-top:12px; color:#0d3e85; text-decoration:none; font-size:14px; }
+  .message { padding:14px 16px; border-radius:10px; margin-bottom:16px; display:none; }
+  .message.success { background:#ecfdf5; color:#165d37; }
+  .message.error { background:#fef2f2; color:#b42318; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Tenant Portal</h1>
+  <div id="message" class="message"></div>
+  <div id="form-container"></div>
+  <a class="link" href="/login.html">Back to admin login</a>
+</div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const formContainer = document.getElementById('form-container');
+const messageEl = document.getElementById('message');
+const activateToken = params.get('activate');
+const resetToken = params.get('reset');
+
+function showMessage(text, type='success') {
+  messageEl.textContent = text;
+  messageEl.className = 'message ' + type;
+  messageEl.style.display = 'block';
+}
+
+function renderLogin() {
+  document.querySelector('h1').textContent = 'Tenant Sign In';
+  formContainer.innerHTML = `
+    <form id="tenant-login-form">
+      <label>Email</label>
+      <input type="email" id="email" required />
+      <label>Password</label>
+      <input type="password" id="password" required />
+      <button type="submit">Sign In</button>
+    </form>
+  `;
+  document.getElementById('tenant-login-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const res = await fetch('/portal/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMessage('Login successful. Tenant portal actions are not yet enabled.', 'success');
+    } else {
+      showMessage(data.error || 'Login failed.', 'error');
+    }
+  };
+}
+
+function renderActivate() {
+  document.querySelector('h1').textContent = 'Activate Your Account';
+  formContainer.innerHTML = `
+    <form id="activate-form">
+      <label>New Password</label>
+      <input type="password" id="password" required minlength="8" placeholder="At least 8 characters" />
+      <button type="submit">Activate Account</button>
+    </form>
+  `;
+  document.getElementById('activate-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const password = document.getElementById('password').value;
+    const res = await fetch('/portal/activate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: activateToken, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMessage(data.message || 'Account activated. Please sign in.', 'success');
+      formContainer.innerHTML = '';
+    } else {
+      showMessage(data.error || 'Activation failed.', 'error');
+    }
+  };
+}
+
+function renderReset() {
+  document.querySelector('h1').textContent = 'Reset Your Password';
+  formContainer.innerHTML = `
+    <form id="reset-form">
+      <label>New Password</label>
+      <input type="password" id="password" required minlength="8" placeholder="At least 8 characters" />
+      <button type="submit">Reset Password</button>
+    </form>
+  `;
+  document.getElementById('reset-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const password = document.getElementById('password').value;
+    const res = await fetch('/portal/reset-password', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: resetToken, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMessage(data.message || 'Password reset. Please sign in.', 'success');
+      formContainer.innerHTML = '';
+    } else {
+      showMessage(data.error || 'Reset failed.', 'error');
+    }
+  };
+}
+
+if (activateToken) {
+  renderActivate();
+} else if (resetToken) {
+  renderReset();
+} else {
+  renderLogin();
+}
+</script>
+</body>
+</html>

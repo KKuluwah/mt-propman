@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import { db, checkDbHealth } from './database/db.js';
 import logger from './middleware/logger.js';
 import { responseTimeMiddleware, getResponseTimeStats } from './middleware/responseTime.js';
-import { apiLimiter, emailLimiter } from './middleware/rateLimiter.js';
+import { apiLimiter, emailLimiter, publicFormLimiter } from './middleware/rateLimiter.js';
 import { requireAdmin } from './middleware/adminAuth.js';
 import propertiesRouter from './routes/properties.js';
 import tenantsRouter from './routes/tenants.js';
@@ -21,6 +21,7 @@ import settingsRouter from './routes/settings.js';
 import reportsRouter from './routes/reports.js';
 import bulkRouter from './routes/bulk.js';
 import notificationsRouter from './routes/notifications.js';
+import portalRouter from './routes/portal.js';
 import { startScheduler } from './routes/scheduler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +54,9 @@ app.use(session({
     createTableIfMissing: true,
     ssl: { rejectUnauthorized: false }
   }),
-  secret: process.env.SESSION_SECRET || 'mt-propman-session-secret-change-in-production',
+  secret: process.env.SESSION_SECRET || (process.env.NODE_ENV === 'production'
+    ? (() => { throw new Error('SESSION_SECRET must be set in production.'); })()
+    : 'mt-propman-dev-secret'),
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -92,14 +95,19 @@ app.post('/auth/login', apiLimiter, async (req, res) => {
   const { username, password } = req.body;
   const adminUser = process.env.ADMIN_USER || 'admin';
   const adminHash = process.env.ADMIN_PASSWORD_HASH;
-  const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+  const adminPass = process.env.ADMIN_PASSWORD;
 
-  if (!adminHash) {
-    if (username !== adminUser || password !== adminPass) {
+  if (process.env.NODE_ENV === 'production' && !adminHash) {
+    logger.error('ADMIN_PASSWORD_HASH must be set in production.');
+    return res.status(500).json({ error: 'Server misconfiguration.' });
+  }
+
+  if (adminHash) {
+    if (username !== adminUser || !(await bcrypt.compare(password, adminHash))) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
   } else {
-    if (username !== adminUser || !(await bcrypt.compare(password, adminHash))) {
+    if (!adminPass || username !== adminUser || password !== adminPass) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
   }
@@ -136,16 +144,7 @@ app.get('/', requireAdmin, (req, res) => res.sendFile(path.resolve(publicDir, 'i
 
 // â”€â”€ API Routes (all require admin session) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// Public -- tenant payment notification (no login needed)
-app.post('/api/notifications/pay-notify', async (req, res) => {
-  const { tenant_name, amount, payment_date, bank_reference, notes } = req.body;
-  if (!tenant_name || !amount || !payment_date)
-    return res.status(400).json({ error: 'Name, amount and date are required.' });
-  await db.prepare(
-    `INSERT INTO notifications (tenant_name, amount, payment_date, bank_reference, notes) VALUES ($1,$2,$3,$4,$5)`
-  ).run([tenant_name, amount, payment_date, bank_reference || '', notes || '']);
-  res.json({ ok: true, message: 'Payment notification sent.' });
-});
+// Public -- tenant payment notification handled by /api/notifications router
 
 app.use('/api', requireAdmin, apiLimiter);
 app.use('/api/properties', propertiesRouter);
@@ -158,6 +157,10 @@ app.use('/api/settings', settingsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/bulk', bulkRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/portal', publicFormLimiter, portalRouter);
+// Public notification lookup & pay-notify (rate limited)
+app.use('/api/notifications/lookup', publicFormLimiter);
+app.use('/api/notifications/pay-notify', publicFormLimiter);
 
 app.get('/api/payments-list', requireAdmin, apiLimiter, async (req, res) => {
   const payments = await db.prepare(`

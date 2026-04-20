@@ -17,3 +17,12 @@ export const emailLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Email rate limit reached. Please wait before sending more.' }
 });
+
+// Public form submissions (pay-notify, portal login): 20 per 10 minutes
+export const publicFormLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many submissions. Please wait before trying again.' }
+});

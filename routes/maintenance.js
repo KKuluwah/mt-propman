@@ -20,7 +20,7 @@ router.post('/', csrfProtect, async (req, res) => {
   const result = await db.prepare(
     'INSERT INTO maintenance (property_id, unit_id, title, description, priority, reported_date, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id'
   ).run([property_id, unit_id || null, title, description || '', priority || 'medium', reported_date || new Date().toISOString().split('T')[0], 'open']);
-  res.json({ id: result.rows[0]?.id, message: 'Maintenance request logged.' });
+  res.json({ id: result.lastInsertRowid, message: 'Maintenance request logged.' });
 });
 
 router.put('/resolve/:id', csrfProtect, async (req, res) => {
