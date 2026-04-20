@@ -223,6 +223,71 @@ router.post('/:id/send-email', csrfProtect, async (req, res) => {
   const unitLabel = inv.unit_name ? ' / ' + inv.unit_name : '';
   const appUrl = process.env.APP_URL || 'https://mt-propman.onrender.com';
   const subject = `Invoice ${inv.invoice_no} - ${inv.property_name}${unitLabel} - Due ${fmtD(inv.due_date)}`;
+  const total = Number(inv.amount_due) + Number(inv.bond_amount || 0);
+
+  const htmlBody = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,sans-serif">
+<div style="max-width:600px;margin:16px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.10)">
+  <div style="background:#0d2137;padding:20px 26px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="color:#fff;font-size:16px;font-weight:700">${s.company_name || 'Mayemou Trading'}</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:11px">${s.physical_address || ''}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="color:#c8922a;font-size:18px;font-weight:700">INVOICE</div>
+      <div style="color:rgba(255,255,255,0.8);font-size:13px">${inv.invoice_no}</div>
+    </div>
+  </div>
+  <div style="padding:24px 26px">
+    <p style="font-size:14px;margin:0 0 14px">Dear <strong>${inv.tenant_name}</strong>,</p>
+    <p style="color:#555;font-size:13px;margin:0 0 18px">Please find your invoice for <strong>${inv.property_name}${unitLabel}</strong>. Kindly arrange payment by the due date below.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+      <div style="border:1.5px solid #c0cad8;border-radius:8px;padding:12px">
+        <div style="font-size:10px;font-weight:700;color:#0d2137;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Billed To</div>
+        <div style="font-weight:700;font-size:13px">${inv.tenant_name}</div>
+        ${inv.postal_address ? `<div style="font-size:12px;color:#555;margin-top:3px">${inv.postal_address}</div>` : ''}
+        ${inv.phone ? `<div style="font-size:12px;color:#555">Ph: ${inv.phone}</div>` : ''}
+      </div>
+      <div style="border:1.5px solid #c0cad8;border-radius:8px;padding:12px">
+        <div style="font-size:10px;font-weight:700;color:#0d2137;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Invoice Details</div>
+        <div style="font-size:12px;color:#555">Invoice No: <strong>${inv.invoice_no}</strong></div>
+        <div style="font-size:12px;color:#555">Lease Ref: <strong>${inv.lease_ref}</strong></div>
+        <div style="font-size:12px;color:#555">Period: ${fmtD(inv.period_start)} – ${fmtD(inv.period_end)}</div>
+        <div style="font-size:12px;color:#b22a2a;font-weight:700">Due: ${fmtD(inv.due_date)}</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:18px">
+      <thead><tr style="border-top:2px solid #0d2137;border-bottom:2px solid #0d2137">
+        <th style="padding:9px 12px;text-align:left;font-size:11px;color:#0d2137;text-transform:uppercase">Description</th>
+        <th style="padding:9px 12px;text-align:right;font-size:11px;color:#0d2137;text-transform:uppercase">Amount</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:11px 12px;border-bottom:1px solid #eee;font-size:13px">Rental – ${inv.property_name}${unitLabel}<br><span style="font-size:11px;color:#888">${fmtD(inv.period_start)} to ${fmtD(inv.period_end)} (${inv.payment_frequency})</span></td>
+            <td style="padding:11px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.amount_due).toLocaleString()}</td></tr>
+        ${Number(inv.bond_amount) > 0 ? `<tr><td style="padding:11px 12px;border-bottom:1px solid #eee;font-size:13px">Security Bond <span style="background:#fff3dc;color:#8a5000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px">ONE-TIME REFUNDABLE</span></td><td style="padding:11px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:700">K${Number(inv.bond_amount).toLocaleString()}</td></tr>` : ''}
+        <tr style="border-top:2px solid #0d2137;border-bottom:2px solid #0d2137">
+          <td style="padding:11px 12px;font-weight:700;font-size:13px">Total Due (GST Inc.)</td>
+          <td style="padding:11px 12px;text-align:right;font-size:18px;font-weight:700;color:#0d2137">K${total.toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="border:2px solid #0d2137;border-radius:8px;padding:14px;margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0d2137;margin-bottom:10px">Payment Details – Bank South Pacific (BSP)</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr><td style="color:#555;padding-bottom:2px">Account Name</td><td style="color:#555;padding-bottom:2px">Account Number</td></tr>
+        <tr><td style="font-weight:700;padding-bottom:8px">${s.bank_account_name || '-'}</td><td style="font-weight:700;padding-bottom:8px">${s.bank_account_number || '-'}</td></tr>
+        <tr><td style="color:#555;padding-bottom:2px">Account Type</td><td style="color:#555;padding-bottom:2px">Branch</td></tr>
+        <tr><td style="font-weight:700">${s.bank_account_type || '-'}</td><td style="font-weight:700">${s.bank_branch || '-'}</td></tr>
+      </table>
+    </div>
+    <p style="font-size:12px;color:#555;text-align:center">After payment, notify us at: <a href="${appUrl}/pay-notify.html">${appUrl}/pay-notify.html</a></p>
+    <p style="font-size:11px;color:#aaa;text-align:center;margin-top:4px">Send payment proof to ${s.email || ''} within 2 business days.</p>
+  </div>
+  <div style="background:#f4f7fb;padding:12px 26px;border-top:1px solid #dde3ed;text-align:center">
+    <p style="color:#bbb;font-size:10px;margin:0">${s.company_name || 'Mayemou Trading'} &bull; ${s.email || ''}</p>
+  </div>
+</div>
+</body></html>`;
 
   // Generate PDF attachment
   const pdfBuffer = await generateInvoicePDF(inv, s);
@@ -237,7 +302,7 @@ router.post('/:id/send-email', csrfProtect, async (req, res) => {
       from: `"${s.company_name || 'Mayemou Trading'}" <${gmailUser}>`,
       to: inv.tenant_email,
       subject,
-      text: `Dear ${inv.tenant_name},\n\nPlease find your invoice ${inv.invoice_no} attached for ${inv.property_name}${unitLabel}.\n\nAmount Due: K${Number(inv.amount_due).toLocaleString()}\nDue Date: ${fmtD(inv.due_date)}\n\nKindly arrange payment by the due date via BSP Bank Transfer to:\nAccount Name: ${s.bank_account_name || ''}\nAccount Number: ${s.bank_account_number || ''}\nAccount Type: ${s.bank_account_type || ''}\nBranch: ${s.bank_branch || ''}\n\nOnce payment is made, please notify us at:\n${appUrl}/pay-notify.html\n\n${s.company_name || 'Mayemou Trading'}`,
+      html: htmlBody,
       attachments: [{
         filename: `${inv.invoice_no}.pdf`,
         content: pdfBuffer,
