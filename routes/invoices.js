@@ -251,4 +251,11 @@ router.post('/:id/send-email', csrfProtect, async (req, res) => {
   }
 });
 
+router.delete('/:id', csrfProtect, async (req, res) => {
+  const existing = await db.prepare('SELECT id FROM payments WHERE invoice_id = $1 LIMIT 1').get([req.params.id]);
+  if (existing) return res.status(400).json({ error: 'Cannot delete an invoice that has a payment recorded.' });
+  await db.prepare('DELETE FROM invoices WHERE id = $1').run([req.params.id]);
+  res.json({ message: 'Invoice deleted.' });
+});
+
 export default router;
